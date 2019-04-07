@@ -161,7 +161,7 @@ const App = () => {
         </ul>
       )}
       <h2>Planning</h2>
-      {/* TODO planning, save/load database (JSON, localstorage...), styles */}
+      {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
     </>
   );
 };
