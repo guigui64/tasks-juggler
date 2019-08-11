@@ -143,23 +143,25 @@ const App = () => {
   const addProjectDialog = (
     <AddDialog
       isOpen={addProjDialogOpen}
-      handleConfirm={() => addProject('Test' + projectId)}
-      handleClose={() => openAddProjDialog(false)}
+      onClose={() => openAddProjDialog(false)}
+      add={() => addProject('Test' + projectId)}
     />
   );
 
   return (
     <div className={theme} id='container'>
       <Navbar
-        theme={theme}
-        switchTheme={switchTheme}
         dumpDataBase={() => console.log(database)}
-        setSelectedProject={setSelectedProject}
         projects={projToDisplay}
-        deleteProject={deleteProject}
-        selectedProject={selectedProject}
-        openDeleteProjAlert={openDeleteProjAlert}
-        openAddProjDialog={openAddProjDialog}
+        {...{
+          theme,
+          switchTheme,
+          setSelectedProject,
+          deleteProject,
+          selectedProject,
+          openDeleteProjAlert,
+          openAddProjDialog
+        }}
       />
       <div id='content'>
         <h2>Tasks</h2>
