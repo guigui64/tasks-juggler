@@ -1,10 +1,9 @@
-import React, { Component, useState } from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
 
-const NO_PROJECT = -1;
-const ALL_PROJECTS = -2;
-const NO_SELECTION = -3;
+import Navbar from './components/navbar.component';
+import { Button, Card } from '@blueprintjs/core';
+import { NO_PROJECT, ALL_PROJECTS } from './constants';
 
 interface DataBase {
   projects: Project[];
@@ -66,10 +65,15 @@ const initialDataBase: DataBase = {
 const App = () => {
   const [projectInputField, setProjectInputField] = useState('');
   const [projectId, setProjectId] = useState(initialProjectId);
-  const [taskId, setTaskId] = useState(initialTaskId);
-  const [selectedProject, setSelectedProject] = useState(NO_SELECTION);
+  // const [taskId, setTaskId] = useState(initialTaskId);
+  const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
   const [database, setDatabase] = useState(initialDataBase);
   const [showOrphan, setShowOrphan] = useState(false);
+
+  const [theme, setTheme] = useState('light');
+  const switchTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   const addProject = () => {
     database.projects.push({
@@ -83,72 +87,30 @@ const App = () => {
   };
 
   return (
-    <>
-      <h1>Tasks Juggler</h1>
-      <button onClick={() => console.log(database)}>Dump database</button>
-      <h2>
-        Projects
-        <button onClick={() => setSelectedProject(ALL_PROJECTS)}>
-          Select all
-        </button>
-      </h2>
-      <input
-        type='textfield'
-        onChange={event => setProjectInputField(event.target.value)}
-        value={projectInputField}
+    <div className={(theme === 'dark' ? 'bp3-dark' : '') + ' bp3-fill'}>
+      <Navbar
+        switchAppTheme={switchTheme}
+        dumpDataBase={() => console.log(database)}
+        setSelectedProject={setSelectedProject}
+        projects={[
+          {
+            name: 'All',
+            id: ALL_PROJECTS
+          },
+          ...database.projects.map(p => {
+            return { name: p.name, id: p.id };
+          })
+        ]}
       />
-      <button onClick={addProject}>Add project</button>
-      <ul>
-        {database.projects.map(project => {
-          let style: any = { cursor: 'pointer' };
-          if (
-            ALL_PROJECTS === selectedProject ||
-            project.id === selectedProject
-          )
-            style.fontWeight = 'bold';
-
-          return (
-            <li key={project.id} style={style}>
-              <a
-                onClick={() => {
-                  setSelectedProject(project.id);
-                }}
-              >
-                {project.name}
-                <small> {project.desc}</small>
-              </a>
-            </li>
-          );
-        })}
-      </ul>
-      <h2>Tasks</h2>
-      <ul>
-        {database.tasks
-          .filter(
-            t =>
-              t.projectId === selectedProject ||
-              (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
-          )
-          .map(task => (
-            <li key={task.id}>
-              {task.title}
-              <small>
-                {' '}
-                {task.desc} -- ({task.duration} days)
-              </small>
-            </li>
-          ))}
-      </ul>
-      <h3>
-        Orphan tasks
-        <button onClick={() => setShowOrphan(!showOrphan)}>
-          {showOrphan ? 'Hide' : 'Show'}
-        </button>
-      </h3>
-      {showOrphan && (
+      <Card>
+        <h2>Tasks</h2>
         <ul>
           {database.tasks
-            .filter(t => t.projectId === NO_PROJECT)
+            .filter(
+              t =>
+                t.projectId === selectedProject ||
+                (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
+            )
             .map(task => (
               <li key={task.id}>
                 {task.title}
@@ -159,10 +121,35 @@ const App = () => {
               </li>
             ))}
         </ul>
-      )}
-      <h2>Planning</h2>
-      {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
-    </>
+      </Card>
+      <Card>
+        <h3>
+          Orphan tasks
+          <Button onClick={() => setShowOrphan(!showOrphan)}>
+            {showOrphan ? 'Hide' : 'Show'}
+          </Button>
+        </h3>
+        {showOrphan && (
+          <ul>
+            {database.tasks
+              .filter(t => t.projectId === NO_PROJECT)
+              .map(task => (
+                <li key={task.id}>
+                  {task.title}
+                  <small>
+                    {' '}
+                    {task.desc} -- ({task.duration} days)
+                  </small>
+                </li>
+              ))}
+          </ul>
+        )}
+      </Card>
+      <Card>
+        <h2>Planning</h2>
+        {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
+      </Card>
+    </div>
   );
 };
 
