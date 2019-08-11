@@ -1,33 +1,20 @@
 import React, { useState } from 'react';
+import { Button } from '@blueprintjs/core';
+
 import './App.css';
 
-import Navbar from './components/navbar.component';
-import { Button, Card } from '@blueprintjs/core';
+import DeleteAlert from './components/deletealert';
+import AddDialog from './components/adddialog';
+import Navbar from './components/navbar';
+
 import {
-  NO_PROJECT,
   ALL_PROJECTS,
-  LIGHT_THEME,
   DARK_THEME,
+  LIGHT_THEME,
+  NO_PROJECT,
   THEME_STORAGE_KEY
 } from './constants';
-
-interface DataBase {
-  projects: Project[];
-  tasks: Task[];
-}
-interface Project {
-  name: string;
-  desc: string;
-  id: number;
-}
-
-interface Task {
-  title: string;
-  desc: string;
-  id: number;
-  projectId: number;
-  duration: number; // in days
-}
+import { DataBase, Project, Task } from './types/types';
 
 let initialProjectId = 0;
 let initialTaskId = 0;
@@ -77,7 +64,6 @@ const getLocalTheme = (): string | null => {
 };
 
 const App = () => {
-  const [projectInputField, setProjectInputField] = useState('');
   const [projectId, setProjectId] = useState(initialProjectId);
   // const [taskId, setTaskId] = useState(initialTaskId);
   const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
@@ -91,61 +77,99 @@ const App = () => {
     setLocalTheme(newTheme);
   };
 
-  const addProject = () => {
+  const [projToDisplay, setProjToDisplay] = useState([
+    {
+      name: 'All',
+      id: ALL_PROJECTS
+    },
+    ...database.projects.map(p => ({ name: p.name, id: p.id }))
+  ]);
+  const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
+  const [addProjDialogOpen, openAddProjDialog] = useState(false);
+
+  const addProject = (name: string) => {
     database.projects.push({
-      name: projectInputField,
+      name: name,
       desc: '',
       id: projectId
     });
     setDatabase(database);
+    setProjToDisplay([
+      {
+        name: 'All',
+        id: ALL_PROJECTS
+      },
+      ...database.projects.map(p => ({ name: p.name, id: p.id }))
+    ]);
+    setSelectedProject(projectId);
     setProjectId(projectId + 1);
-    setProjectInputField('');
   };
+
+  const deleteProject = (projectId: number) => {
+    database.projects = database.projects.filter(
+      (p: Project) => p.id !== projectId
+    );
+    database.tasks.forEach(
+      (t: Task) => t.projectId === projectId && (t.projectId = NO_PROJECT)
+    );
+    setDatabase(database);
+    setProjToDisplay([
+      {
+        name: 'All',
+        id: ALL_PROJECTS
+      },
+      ...database.projects.map(p => ({ name: p.name, id: p.id }))
+    ]);
+    setSelectedProject(ALL_PROJECTS);
+  };
+
+  const deleteProjectAlert = (
+    <DeleteAlert
+      confirmButtonText='Delete project'
+      isOpen={deleteProjAlertOpen}
+      onCancel={() => openDeleteProjAlert(false)}
+      onConfirm={() => {
+        openDeleteProjAlert(false);
+        deleteProject(selectedProject);
+      }}
+      deletionTargetName={
+        projToDisplay.find(
+          (p: { name: string; id: number }) => p.id === selectedProject
+        )!.name
+      }
+    />
+  );
+
+  const addProjectDialog = (
+    <AddDialog
+      isOpen={addProjDialogOpen}
+      handleConfirm={() => addProject('Test' + projectId)}
+      handleClose={() => openAddProjDialog(false)}
+    />
+  );
 
   return (
     <div className={theme} id='container'>
       <Navbar
-        switchAppTheme={switchTheme}
+        theme={theme}
+        switchTheme={switchTheme}
         dumpDataBase={() => console.log(database)}
         setSelectedProject={setSelectedProject}
-        projects={[
-          {
-            name: 'All',
-            id: ALL_PROJECTS
-          },
-          ...database.projects.map(p => {
-            return { name: p.name, id: p.id };
-          })
-        ]}
+        projects={projToDisplay}
+        deleteProject={deleteProject}
+        selectedProject={selectedProject}
+        openDeleteProjAlert={openDeleteProjAlert}
+        openAddProjDialog={openAddProjDialog}
       />
-      <h2>Tasks</h2>
-      <ul>
-        {database.tasks
-          .filter(
-            t =>
-              t.projectId === selectedProject ||
-              (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
-          )
-          .map(task => (
-            <li key={task.id}>
-              {task.title}
-              <small>
-                {' '}
-                {task.desc} -- ({task.duration} days)
-              </small>
-            </li>
-          ))}
-      </ul>
-      <h3>
-        Orphan tasks
-        <Button onClick={() => setShowOrphan(!showOrphan)}>
-          {showOrphan ? 'Hide' : 'Show'}
-        </Button>
-      </h3>
-      {showOrphan && (
+      <div id='content'>
+        <h2>Tasks</h2>
         <ul>
           {database.tasks
-            .filter(t => t.projectId === NO_PROJECT)
+            .filter(
+              t =>
+                t.projectId === selectedProject ||
+                (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
+            )
             .map(task => (
               <li key={task.id}>
                 {task.title}
@@ -156,9 +180,32 @@ const App = () => {
               </li>
             ))}
         </ul>
-      )}
-      <h2>Planning</h2>
-      {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
+        <h3>
+          Orphan tasks
+          <Button onClick={() => setShowOrphan(!showOrphan)}>
+            {showOrphan ? 'Hide' : 'Show'}
+          </Button>
+        </h3>
+        {showOrphan && (
+          <ul>
+            {database.tasks
+              .filter(t => t.projectId === NO_PROJECT)
+              .map(task => (
+                <li key={task.id}>
+                  {task.title}
+                  <small>
+                    {' '}
+                    {task.desc} -- ({task.duration} days)
+                  </small>
+                </li>
+              ))}
+          </ul>
+        )}
+        <h2>Planning</h2>
+        {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
+      </div>
+      {deleteProjectAlert}
+      {addProjectDialog}
     </div>
   );
 };

@@ -1,38 +1,31 @@
-import React, { useState } from 'react';
-
+import React from 'react';
 import {
-  Navbar,
   Alignment,
   Button,
+  Menu,
+  Navbar,
   Popover,
   Position,
-  Menu,
-  Tabs,
-  H6
+  Tabs
 } from '@blueprintjs/core';
-import { ALL_PROJECTS } from '../constants';
+
+import { ALL_PROJECTS, LIGHT_THEME } from '../constants';
 
 export default ({
-  switchAppTheme,
+  theme,
+  switchTheme,
   dumpDataBase,
   setSelectedProject,
-  projects
+  projects,
+  selectedProject,
+  openDeleteProjAlert,
+  openAddProjDialog
 }: any) => {
-  console.log(projects);
-
-  const [theme, setTheme] = useState('light');
-  const [selectedProject, selectProject] = useState(ALL_PROJECTS);
-
-  const switchTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-    switchAppTheme();
-  };
-
   const settingsMenu = (
     <Menu>
       <Menu.Item
-        text={(theme === 'light' ? 'Dark' : 'Light') + ' theme'}
-        icon={theme === 'light' ? 'moon' : 'flash'}
+        text={(theme === LIGHT_THEME ? 'Dark' : 'Light') + ' theme'}
+        icon={theme === LIGHT_THEME ? 'moon' : 'flash'}
         onClick={switchTheme}
       />
       <Menu.Divider />
@@ -48,12 +41,17 @@ export default ({
   const actionsMenu = (
     <Menu>
       <Menu.Divider title='Projects' />
-      <Menu.Item text='Add project' icon='add' />
+      <Menu.Item
+        text='Add project'
+        icon='add'
+        onClick={() => openAddProjDialog(true)}
+      />
       <Menu.Item
         text='Delete current project'
         icon='trash'
         intent='danger'
         disabled={selectedProject === ALL_PROJECTS}
+        onClick={() => openDeleteProjAlert(true)}
       />
       <Menu.Divider title='Tasks' />
       <Menu.Item text='Add task' icon='add' />
@@ -70,10 +68,10 @@ export default ({
           large
           onChange={id => {
             setSelectedProject(id);
-            selectProject(id as number);
           }}
+          selectedTabId={selectedProject}
         >
-          {projects.map((p: { name: string; id: string }) => (
+          {projects.map((p: { name: string; id: number }) => (
             <Tabs.Tab title={p.name} id={p.id} />
           ))}
         </Tabs>
