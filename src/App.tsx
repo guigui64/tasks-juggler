@@ -3,7 +3,13 @@ import './App.css';
 
 import Navbar from './components/navbar.component';
 import { Button, Card } from '@blueprintjs/core';
-import { NO_PROJECT, ALL_PROJECTS } from './constants';
+import {
+  NO_PROJECT,
+  ALL_PROJECTS,
+  LIGHT_THEME,
+  DARK_THEME,
+  THEME_STORAGE_KEY
+} from './constants';
 
 interface DataBase {
   projects: Project[];
@@ -62,6 +68,14 @@ const initialDataBase: DataBase = {
   ]
 };
 
+const setLocalTheme = (theme: string) => {
+  localStorage.setItem(THEME_STORAGE_KEY, theme);
+};
+
+const getLocalTheme = (): string | null => {
+  return localStorage.getItem(THEME_STORAGE_KEY);
+};
+
 const App = () => {
   const [projectInputField, setProjectInputField] = useState('');
   const [projectId, setProjectId] = useState(initialProjectId);
@@ -70,9 +84,11 @@ const App = () => {
   const [database, setDatabase] = useState(initialDataBase);
   const [showOrphan, setShowOrphan] = useState(false);
 
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(getLocalTheme() || LIGHT_THEME);
   const switchTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    const newTheme = theme === LIGHT_THEME ? DARK_THEME : LIGHT_THEME;
+    setTheme(newTheme);
+    setLocalTheme(newTheme);
   };
 
   const addProject = () => {
@@ -87,7 +103,7 @@ const App = () => {
   };
 
   return (
-    <div className={(theme === 'dark' ? 'bp3-dark' : '') + ' bp3-fill'}>
+    <div className={theme} id='container'>
       <Navbar
         switchAppTheme={switchTheme}
         dumpDataBase={() => console.log(database)}
@@ -102,15 +118,34 @@ const App = () => {
           })
         ]}
       />
-      <Card>
-        <h2>Tasks</h2>
+      <h2>Tasks</h2>
+      <ul>
+        {database.tasks
+          .filter(
+            t =>
+              t.projectId === selectedProject ||
+              (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
+          )
+          .map(task => (
+            <li key={task.id}>
+              {task.title}
+              <small>
+                {' '}
+                {task.desc} -- ({task.duration} days)
+              </small>
+            </li>
+          ))}
+      </ul>
+      <h3>
+        Orphan tasks
+        <Button onClick={() => setShowOrphan(!showOrphan)}>
+          {showOrphan ? 'Hide' : 'Show'}
+        </Button>
+      </h3>
+      {showOrphan && (
         <ul>
           {database.tasks
-            .filter(
-              t =>
-                t.projectId === selectedProject ||
-                (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
-            )
+            .filter(t => t.projectId === NO_PROJECT)
             .map(task => (
               <li key={task.id}>
                 {task.title}
@@ -121,34 +156,9 @@ const App = () => {
               </li>
             ))}
         </ul>
-      </Card>
-      <Card>
-        <h3>
-          Orphan tasks
-          <Button onClick={() => setShowOrphan(!showOrphan)}>
-            {showOrphan ? 'Hide' : 'Show'}
-          </Button>
-        </h3>
-        {showOrphan && (
-          <ul>
-            {database.tasks
-              .filter(t => t.projectId === NO_PROJECT)
-              .map(task => (
-                <li key={task.id}>
-                  {task.title}
-                  <small>
-                    {' '}
-                    {task.desc} -- ({task.duration} days)
-                  </small>
-                </li>
-              ))}
-          </ul>
-        )}
-      </Card>
-      <Card>
-        <h2>Planning</h2>
-        {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
-      </Card>
+      )}
+      <h2>Planning</h2>
+      {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
     </div>
   );
 };
