@@ -15,6 +15,7 @@ import {
   THEME_STORAGE_KEY
 } from './constants';
 import { DataBase, Project, Task } from './types/types';
+import TaskGroup from './components/taskgroup';
 
 let initialProjectId = 0;
 let initialTaskId = 0;
@@ -165,43 +166,15 @@ const App = () => {
       />
       <div id='content'>
         <h2>Tasks</h2>
-        <ul>
-          {database.tasks
-            .filter(
-              t =>
-                t.projectId === selectedProject ||
-                (selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
-            )
-            .map(task => (
-              <li key={task.id}>
-                {task.title}
-                <small>
-                  {' '}
-                  {task.desc} -- ({task.duration} days)
-                </small>
-              </li>
-            ))}
-        </ul>
+        <TaskGroup tasks={database.tasks} selectedProject={selectedProject} />
         <h3>
-          Orphan tasks
+          Orphan tasks{' '}
           <Button onClick={() => setShowOrphan(!showOrphan)}>
             {showOrphan ? 'Hide' : 'Show'}
           </Button>
         </h3>
         {showOrphan && (
-          <ul>
-            {database.tasks
-              .filter(t => t.projectId === NO_PROJECT)
-              .map(task => (
-                <li key={task.id}>
-                  {task.title}
-                  <small>
-                    {' '}
-                    {task.desc} -- ({task.duration} days)
-                  </small>
-                </li>
-              ))}
-          </ul>
+          <TaskGroup tasks={database.tasks} selectedProject={NO_PROJECT} />
         )}
         <h2>Planning</h2>
         {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}

@@ -49,7 +49,7 @@ export default ({
         </Tabs>
         <Navbar.Divider />
         <Popover content={actionsMenu} position={Position.BOTTOM}>
-          <Button minimal icon='menu' text='Actions' />
+          <Button minimal icon='build' text='Actions' />
         </Popover>
         <Popover content={settingsMenu} position={Position.BOTTOM}>
           <Button minimal icon='cog' text='Settings' />
