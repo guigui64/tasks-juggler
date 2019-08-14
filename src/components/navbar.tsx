@@ -8,27 +8,39 @@ import {
   Tabs
 } from '@blueprintjs/core';
 
-import { ActionsMenu, SettingsMenu } from './menus';
+import { ActionsMenu } from './actions.menu';
+import { SettingsForm } from './settings.form';
+import { ALL_PROJECTS } from '../constants';
 
 export default ({
   theme,
-  switchTheme,
+  setTheme,
   dumpDataBase,
   setSelectedProject,
-  projects,
+  database,
   selectedProject,
   openDeleteProjAlert,
-  openAddProjDialog
+  openAddProjDialog,
+  showOrphan,
+  setShowOrphan
 }: any) => {
-  const settingsMenu = (
-    <SettingsMenu {...{ theme, switchTheme, dumpDataBase }} />
+  const settingsForm = (
+    <SettingsForm {...{ theme, setTheme, showOrphan, setShowOrphan }} />
   );
 
   const actionsMenu = (
     <ActionsMenu
-      {...{ openAddProjDialog, selectedProject, openDeleteProjAlert }}
+      {...{ openAddProjDialog, selectedProject, openDeleteProjAlert, dumpDataBase }}
     />
   );
+
+  const projects = [
+    {
+      name: 'All',
+      id: ALL_PROJECTS
+    },
+    ...database.projects.map((p: { name: string; id: number; }) => ({ name: p.name, id: p.id }))
+  ];
 
   return (
     <Navbar>
@@ -51,7 +63,7 @@ export default ({
         <Popover content={actionsMenu} position={Position.BOTTOM}>
           <Button minimal icon='build' text='Actions' />
         </Popover>
-        <Popover content={settingsMenu} position={Position.BOTTOM}>
+        <Popover content={settingsForm} position={Position.BOTTOM}>
           <Button minimal icon='cog' text='Settings' />
         </Popover>
       </Navbar.Group>

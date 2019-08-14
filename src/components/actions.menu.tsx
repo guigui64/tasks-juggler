@@ -1,11 +1,12 @@
 import React from 'react';
 import { Menu } from '@blueprintjs/core';
-import { ALL_PROJECTS, LIGHT_THEME } from '../constants';
+import { ALL_PROJECTS } from '../constants';
 
 export const ActionsMenu = ({
   openAddProjDialog,
   selectedProject,
-  openDeleteProjAlert
+  openDeleteProjAlert,
+  dumpDataBase
 }: any) => (
   <Menu>
     <Menu.Divider title='Projects' />
@@ -21,24 +22,8 @@ export const ActionsMenu = ({
       disabled={selectedProject === ALL_PROJECTS}
       onClick={() => openDeleteProjAlert(true)}
     />
-    <Menu.Divider title='Tasks' />
-    <Menu.Item
-      text='Add task'
-      icon='add'
-      onClick={() => console.log('TODO add task')}
-    />
-  </Menu>
-);
-
-export const SettingsMenu = ({ theme, switchTheme, dumpDataBase }: any) => (
-  <Menu>
-    <Menu.Item
-      text={(theme === LIGHT_THEME ? 'Dark' : 'Light') + ' theme'}
-      icon={theme === LIGHT_THEME ? 'moon' : 'flash'}
-      onClick={switchTheme}
-    />
-    <Menu.Divider />
+    <Menu.Divider title='Database' />
     <Menu.Item text='Dump database' icon='floppy-disk' onClick={dumpDataBase} />
-    <Menu.Item text='TODO' icon='lock' disabled />
+    <Menu.Item text='Load database (TODO)' icon='database' disabled />
   </Menu>
 );

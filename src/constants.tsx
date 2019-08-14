@@ -6,6 +6,7 @@ export const LIGHT_THEME = '';
 
 // Local storage keys
 export const THEME_STORAGE_KEY = 'tasks-juggler-theme';
+export const SHOW_ORPHAN_STORAGE_KEY = 'tasks-juggler-show-orphan';
 
 // Projects
 export const NO_PROJECT: number = -1;

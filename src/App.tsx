@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
-import { Button } from '@blueprintjs/core';
+import { H3 } from '@blueprintjs/core';
 
 import './App.css';
 
-import DeleteAlert from './components/deletealert';
-import AddDialog from './components/adddialog';
+import DeleteAlert from './components/delete.alert';
+import AddDialog from './components/add.dialog';
 import Navbar from './components/navbar';
 
 import {
   ALL_PROJECTS,
-  DARK_THEME,
   LIGHT_THEME,
   NO_PROJECT,
-  THEME_STORAGE_KEY
+  THEME_STORAGE_KEY,
+  SHOW_ORPHAN_STORAGE_KEY
 } from './constants';
 import { DataBase, Project, Task } from './types/types';
 import TaskGroup from './components/taskgroup';
+import { DumpDatabaseDialog } from './components/database.dialogs';
 
 let initialProjectId = 0;
 let initialTaskId = 0;
@@ -56,37 +57,21 @@ const initialDataBase: DataBase = {
   ]
 };
 
-const setLocalTheme = (theme: string) => {
-  localStorage.setItem(THEME_STORAGE_KEY, theme);
-};
-
-const getLocalTheme = (): string | null => {
-  return localStorage.getItem(THEME_STORAGE_KEY);
-};
-
 const App = () => {
-  const [projectId, setProjectId] = useState(initialProjectId);
-  // const [taskId, setTaskId] = useState(initialTaskId);
-  const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
-  const [database, setDatabase] = useState(initialDataBase);
-  const [showOrphan, setShowOrphan] = useState(false);
 
-  const [theme, setTheme] = useState(getLocalTheme() || LIGHT_THEME);
-  const switchTheme = () => {
-    const newTheme = theme === LIGHT_THEME ? DARK_THEME : LIGHT_THEME;
-    setTheme(newTheme);
-    setLocalTheme(newTheme);
-  };
+  // Settings states => TODO redux
+  const [showOrphan, setShowOrphan] = useState(Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false));
+  const [theme, setTheme] = useState(localStorage.getItem(THEME_STORAGE_KEY) || LIGHT_THEME);
 
-  const [projToDisplay, setProjToDisplay] = useState([
-    {
-      name: 'All',
-      id: ALL_PROJECTS
-    },
-    ...database.projects.map(p => ({ name: p.name, id: p.id }))
-  ]);
+  // Overlays states
   const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
   const [addProjDialogOpen, openAddProjDialog] = useState(false);
+  const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
+
+  // Data states
+  const [database, setDatabase] = useState(initialDataBase);
+  const [projectId, setProjectId] = useState(initialProjectId);
+  const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
 
   const addProject = (name: string) => {
     database.projects.push({
@@ -95,13 +80,6 @@ const App = () => {
       id: projectId
     });
     setDatabase(database);
-    setProjToDisplay([
-      {
-        name: 'All',
-        id: ALL_PROJECTS
-      },
-      ...database.projects.map(p => ({ name: p.name, id: p.id }))
-    ]);
     setSelectedProject(projectId);
     setProjectId(projectId + 1);
   };
@@ -114,73 +92,57 @@ const App = () => {
       (t: Task) => t.projectId === projectId && (t.projectId = NO_PROJECT)
     );
     setDatabase(database);
-    setProjToDisplay([
-      {
-        name: 'All',
-        id: ALL_PROJECTS
-      },
-      ...database.projects.map(p => ({ name: p.name, id: p.id }))
-    ]);
     setSelectedProject(ALL_PROJECTS);
   };
-
-  const deleteProjectAlert = (
-    <DeleteAlert
-      confirmButtonText='Delete project'
-      isOpen={deleteProjAlertOpen}
-      onCancel={() => openDeleteProjAlert(false)}
-      onConfirm={() => {
-        openDeleteProjAlert(false);
-        deleteProject(selectedProject);
-      }}
-      deletionTargetName={
-        projToDisplay.find(
-          (p: { name: string; id: number }) => p.id === selectedProject
-        )!.name
-      }
-    />
-  );
-
-  const addProjectDialog = (
-    <AddDialog
-      isOpen={addProjDialogOpen}
-      onClose={() => openAddProjDialog(false)}
-      add={() => addProject('Test' + projectId)}
-    />
-  );
 
   return (
     <div className={theme} id='container'>
       <Navbar
-        dumpDataBase={() => console.log(database)}
-        projects={projToDisplay}
+        dumpDataBase={() => openDumpDBDialog(true)}
         {...{
           theme,
-          switchTheme,
+          setTheme,
           setSelectedProject,
+          database,
           deleteProject,
           selectedProject,
           openDeleteProjAlert,
-          openAddProjDialog
+          openAddProjDialog,
+          showOrphan,
+          setShowOrphan
         }}
       />
-      <div id='content'>
-        <h2>Tasks</h2>
-        <TaskGroup tasks={database.tasks} selectedProject={selectedProject} />
-        <h3>
-          Orphan tasks{' '}
-          <Button onClick={() => setShowOrphan(!showOrphan)}>
-            {showOrphan ? 'Hide' : 'Show'}
-          </Button>
-        </h3>
-        {showOrphan && (
-          <TaskGroup tasks={database.tasks} selectedProject={NO_PROJECT} />
-        )}
-        <h2>Planning</h2>
-        {/* TODO create/edit project/task, planning, save/load database (JSON, localstorage...), styles */}
+      <TaskGroup title='Tasks' tasks={database.tasks} selectedProject={selectedProject} />
+      {showOrphan && (
+        <TaskGroup title='Orphan tasks' tasks={database.tasks} selectedProject={NO_PROJECT} />
+      )}
+      <div style={{padding: '50px 50px 0 50px'}}>
+        <div style={{display: 'inline'}} >
+          <H3 style={{display: 'inline-block', marginRight: '10px'}}>Planning</H3>
+        </div>
       </div>
-      {deleteProjectAlert}
-      {addProjectDialog}
+      {/* Overlays : */}
+      <DeleteAlert
+        confirmButtonText='Delete project'
+        isOpen={deleteProjAlertOpen}
+        onCancel={() => openDeleteProjAlert(false)}
+        onConfirm={() => {
+          openDeleteProjAlert(false);
+          deleteProject(selectedProject);
+        }}
+        deletionTargetName={
+          selectedProject === ALL_PROJECTS ? 'ALL => IMPOSSIBLE' : database.projects.find(
+            (p: Project) => p.id === selectedProject
+          )!.name
+        }
+      />
+      <AddDialog
+        isOpen={addProjDialogOpen}
+        onClose={() => openAddProjDialog(false)}
+        add={() => addProject('Test' + projectId)}
+        // TODO project name
+      />
+      <DumpDatabaseDialog isOpen={dumpDBDialogOpen} onClose={() => openDumpDBDialog(false)} dump={JSON.stringify(database, null, '\t')} />
     </div>
   );
 };
