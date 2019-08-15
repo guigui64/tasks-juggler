@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { H3 } from '@blueprintjs/core';
+import React, { useState, FunctionComponent } from 'react';
+import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 
 import './App.css';
 
@@ -12,53 +12,29 @@ import {
 	LIGHT_THEME,
 	NO_PROJECT,
 	THEME_STORAGE_KEY,
-	SHOW_ORPHAN_STORAGE_KEY
+	SHOW_ORPHAN_STORAGE_KEY,
+	DATABASE_STORAGE_KEY
 } from './constants';
 import { DataBase, Project, Task } from './types/types';
 import TaskGroup from './components/taskgroup';
-import { DumpDatabaseDialog } from './components/database.dialogs';
+import {
+	DumpDataBaseDialog,
+	LoadDataBaseDialog
+} from './components/database.dialogs';
+import ReactDOM from 'react-dom';
+import {
+	createFakeDataBase,
+	validateDB,
+	getNextProjectId
+} from './data/database';
 
-let initialProjectId = 0;
-let initialTaskId = 0;
-const initialDataBase: DataBase = {
-	projects: [
-		{ name: 'Toto', desc: 'toto project', id: initialProjectId++ },
-		{ name: 'Titi', desc: 'titi project', id: initialProjectId++ }
-	],
-	tasks: [
-		{
-			title: 'ZombieTask',
-			desc: 'I have no project...',
-			id: initialTaskId++,
-			projectId: NO_PROJECT,
-			duration: 1
-		},
-		{
-			title: 'TotoTask1',
-			desc: 'task 1 of toto project',
-			id: initialTaskId++,
-			projectId: 0,
-			duration: 0.5
-		},
-		{
-			title: 'TotoTask2',
-			desc: 'task 2 of toto project',
-			id: initialTaskId++,
-			projectId: 0,
-			duration: 1
-		},
-		{
-			title: 'TitiTask',
-			desc: 'task 1 of titi project',
-			id: initialTaskId++,
-			projectId: 1,
-			duration: 1
-		}
-	]
+type AppProps = {
+	toaster: IToaster;
 };
 
-const App = () => {
-	// Settings states => TODO redux
+const App: FunctionComponent<AppProps> = ({ toaster }) => {
+	// Settings states
+	// TODO redux
 	const [showOrphan, setShowOrphan] = useState(
 		Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false)
 	);
@@ -70,43 +46,60 @@ const App = () => {
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
 	const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
+	const [loadDBDialogOpen, openLoadDBDialog] = useState(false);
 
 	// Data states
-	const [database, setDatabase] = useState(initialDataBase);
-	const [projectId, setProjectId] = useState(initialProjectId);
+	const localDBStr = localStorage.getItem(DATABASE_STORAGE_KEY);
+	let localDB: DataBase | undefined;
+	if (localDBStr) {
+		try {
+			localDB = JSON.parse(localDBStr);
+		} catch (error) {}
+	}
+	const [dataBase, setDataBase] = useState(localDB || createFakeDataBase());
+	const updateDataBase = (db: DataBase) => {
+		setDataBase(db);
+		localStorage.setItem(DATABASE_STORAGE_KEY, JSON.stringify(db));
+	};
 	const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
 
 	const addProject = (name: string) => {
-		database.projects.push({
+		const projectId = getNextProjectId(dataBase);
+		dataBase.projects.push({
 			name: name,
 			desc: '',
 			id: projectId
 		});
-		setDatabase(database);
+		updateDataBase(dataBase);
 		setSelectedProject(projectId);
-		setProjectId(projectId + 1);
 	};
 
 	const deleteProject = (projectId: number) => {
-		database.projects = database.projects.filter(
+		dataBase.projects = dataBase.projects.filter(
 			(p: Project) => p.id !== projectId
 		);
-		database.tasks.forEach(
+		dataBase.tasks.forEach(
 			(t: Task) => t.projectId === projectId && (t.projectId = NO_PROJECT)
 		);
-		setDatabase(database);
+		updateDataBase(dataBase);
 		setSelectedProject(ALL_PROJECTS);
+	};
+
+	ReactDOM.createPortal(toaster, document.getElementById('root')!);
+	const addToast = (message: string, intent: IIntentProps['intent']) => {
+		toaster.show({ message, intent });
 	};
 
 	return (
 		<div className={theme} id='container'>
 			<Navbar
 				dumpDataBase={() => openDumpDBDialog(true)}
+				loadDataBase={() => openLoadDBDialog(true)}
 				{...{
 					theme,
 					setTheme,
 					setSelectedProject,
-					database,
+					dataBase,
 					deleteProject,
 					selectedProject,
 					openDeleteProjAlert,
@@ -117,13 +110,13 @@ const App = () => {
 			/>
 			<TaskGroup
 				title='Tasks'
-				tasks={database.tasks}
+				tasks={dataBase.tasks}
 				selectedProject={selectedProject}
 			/>
 			{showOrphan && (
 				<TaskGroup
 					title='Orphan tasks'
-					tasks={database.tasks}
+					tasks={dataBase.tasks}
 					selectedProject={NO_PROJECT}
 				/>
 			)}
@@ -146,23 +139,47 @@ const App = () => {
 				deletionTargetName={
 					selectedProject === ALL_PROJECTS
 						? 'ALL => IMPOSSIBLE'
-						: database.projects.find((p: Project) => p.id === selectedProject)!
+						: dataBase.projects.find((p: Project) => p.id === selectedProject)!
 								.name
 				}
 			/>
 			<AddDialog
 				isOpen={addProjDialogOpen}
 				onClose={() => openAddProjDialog(false)}
-				add={() => addProject('Test' + projectId)}
+				add={() => addProject('Test' + getNextProjectId(dataBase))}
 				// TODO project name
 			/>
-			<DumpDatabaseDialog
+			<DumpDataBaseDialog
 				isOpen={dumpDBDialogOpen}
 				onClose={() => openDumpDBDialog(false)}
-				dump={JSON.stringify(database, null, '\t')}
+				dump={JSON.stringify(dataBase, null, '\t')}
+				onClipboard={() => addToast('Copied to clipboard !', Intent.SUCCESS)}
+			/>
+			<LoadDataBaseDialog
+				isOpen={loadDBDialogOpen}
+				onClose={() => openLoadDBDialog(false)}
+				onLoad={(input: string) => {
+					let newDatabase: any | undefined;
+					try {
+						newDatabase = JSON.parse(input);
+					} catch (error) {
+						addToast('Imported DB format is not correct', Intent.WARNING);
+						return false;
+					}
+					const { valid, reason } = validateDB(newDatabase);
+					if (!valid) {
+						addToast(reason!, Intent.WARNING);
+						return false;
+					}
+					updateDataBase(newDatabase);
+					addToast('DB successfully imported', Intent.SUCCESS);
+					return true;
+				}}
 			/>
 		</div>
 	);
 };
 
 export default App;
+
+// TODO : document + comment code

@@ -1,80 +1,108 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import {
 	Alignment,
 	Button,
-	Navbar,
 	Popover,
 	Position,
-	Tabs
+	Tabs,
+	Tooltip
 } from '@blueprintjs/core';
+import { Navbar as BPNavbar } from '@blueprintjs/core';
 
 import { ActionsMenu } from './actions.menu';
 import { SettingsForm } from './settings.form';
 import { ALL_PROJECTS } from '../constants';
+import { DataBase, Project } from '../types/types';
 
-export default ({
+type NavbarProps = {
+	theme: string;
+	setTheme: (s: string) => void;
+	dumpDataBase: () => void;
+	loadDataBase: () => void;
+	setSelectedProject: (p: number) => void;
+	dataBase: DataBase;
+	selectedProject: number;
+	openDeleteProjAlert: (b: boolean) => void;
+	openAddProjDialog: (b: boolean) => void;
+	showOrphan: boolean;
+	setShowOrphan: (b: boolean) => void;
+};
+
+const Navbar: FunctionComponent<NavbarProps> = ({
 	theme,
 	setTheme,
 	dumpDataBase,
+	loadDataBase,
 	setSelectedProject,
-	database,
+	dataBase,
 	selectedProject,
 	openDeleteProjAlert,
 	openAddProjDialog,
 	showOrphan,
 	setShowOrphan
-}: any) => {
-	const settingsForm = (
-		<SettingsForm {...{ theme, setTheme, showOrphan, setShowOrphan }} />
-	);
-
-	const actionsMenu = (
-		<ActionsMenu
-			{...{
-				openAddProjDialog,
-				selectedProject,
-				openDeleteProjAlert,
-				dumpDataBase
-			}}
-		/>
-	);
-
-	const projects = [
+}) => {
+	const projects: Project[] = [
 		{
 			name: 'All',
-			id: ALL_PROJECTS
+			id: ALL_PROJECTS,
+			desc: 'All the projects'
 		},
-		...database.projects.map((p: { name: string; id: number }) => ({
-			name: p.name,
-			id: p.id
-		}))
+		...dataBase.projects
 	];
 
 	return (
-		<Navbar>
-			<Navbar.Group align={Alignment.LEFT}>
-				<Navbar.Heading>Tasks Juggler</Navbar.Heading>
-			</Navbar.Group>
-			<Navbar.Group align={Alignment.RIGHT}>
+		<BPNavbar>
+			<BPNavbar.Group align={Alignment.LEFT}>
+				<BPNavbar.Heading>Tasks Juggler</BPNavbar.Heading>
+			</BPNavbar.Group>
+			<BPNavbar.Group align={Alignment.RIGHT}>
 				<Tabs
 					large
 					onChange={id => {
-						setSelectedProject(id);
+						setSelectedProject(id as number);
 					}}
 					selectedTabId={selectedProject}
 				>
-					{projects.map((p: { name: string; id: number }) => (
-						<Tabs.Tab title={p.name} id={p.id} key={p.id} />
+					{projects.map((p: Project) => (
+						<Tabs.Tab
+							title={
+								<Tooltip content={p.desc} position={Position.BOTTOM}>
+									{p.name}
+								</Tooltip>
+							}
+							id={p.id}
+							key={p.id}
+						/>
 					))}
 				</Tabs>
-				<Navbar.Divider />
-				<Popover content={actionsMenu} position={Position.BOTTOM}>
+				<BPNavbar.Divider />
+				<Popover
+					content={
+						<ActionsMenu
+							{...{
+								openAddProjDialog,
+								selectedProject,
+								openDeleteProjAlert,
+								dumpDataBase,
+								loadDataBase
+							}}
+						/>
+					}
+					position={Position.BOTTOM}
+				>
 					<Button minimal icon='build' text='Actions' />
 				</Popover>
-				<Popover content={settingsForm} position={Position.BOTTOM}>
+				<Popover
+					content={
+						<SettingsForm {...{ theme, setTheme, showOrphan, setShowOrphan }} />
+					}
+					position={Position.BOTTOM}
+				>
 					<Button minimal icon='cog' text='Settings' />
 				</Popover>
-			</Navbar.Group>
-		</Navbar>
+			</BPNavbar.Group>
+		</BPNavbar>
 	);
 };
+
+export default Navbar;

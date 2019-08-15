@@ -4,15 +4,22 @@ import { ALL_PROJECTS, NO_PROJECT } from '../constants';
 import TaskCard from './task.card';
 import { H3, ButtonGroup, Button } from '@blueprintjs/core';
 
-const TaskGroup: FunctionComponent<{
+type TaskGroupProps = {
 	title: string;
 	tasks: Task[];
 	selectedProject: number;
-}> = ({ title, tasks, selectedProject }) => (
+};
+
+const TaskGroup: FunctionComponent<TaskGroupProps> = ({
+	title,
+	tasks,
+	selectedProject
+}) => (
 	<div style={{ padding: '50px 50px 0 50px' }}>
 		<div style={{ display: 'inline' }}>
 			<H3 style={{ display: 'inline-block', marginRight: '10px' }}>{title}</H3>
 			<ButtonGroup>
+				{/* TODO add and delete task */}
 				<Button
 					text='Add task'
 					icon='add'
@@ -47,3 +54,5 @@ const TaskGroup: FunctionComponent<{
 );
 
 export default TaskGroup;
+
+// TODO animation when showing/hiding tasks group

@@ -10,8 +10,12 @@ import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
 
 import './index.css';
+import { Toaster, Position } from '@blueprintjs/core';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+const toaster = Toaster.create({
+	position: Position.TOP
+});
+ReactDOM.render(<App toaster={toaster} />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

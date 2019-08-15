@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Menu } from '@blueprintjs/core';
 import { ALL_PROJECTS } from '../constants';
 
-export const ActionsMenu = ({
+type ActionsMenuProps = {
+	openAddProjDialog: (b: boolean) => void;
+	selectedProject: number;
+	openDeleteProjAlert: (b: boolean) => void;
+	dumpDataBase: () => void;
+	loadDataBase: () => void;
+};
+
+export const ActionsMenu: FunctionComponent<ActionsMenuProps> = ({
 	openAddProjDialog,
 	selectedProject,
 	openDeleteProjAlert,
-	dumpDataBase
-}: any) => (
+	dumpDataBase,
+	loadDataBase
+}) => (
 	<Menu>
 		<Menu.Divider title='Projects' />
 		<Menu.Item
@@ -16,7 +25,14 @@ export const ActionsMenu = ({
 			onClick={() => openAddProjDialog(true)}
 		/>
 		<Menu.Item
-			text='Delete current project'
+			text='Edit project'
+			icon='edit'
+			disabled={selectedProject === ALL_PROJECTS}
+			onClick={() => console.log('TODO edit project')}
+			// TODO edit project
+		/>
+		<Menu.Item
+			text='Delete project'
 			icon='trash'
 			intent='danger'
 			disabled={selectedProject === ALL_PROJECTS}
@@ -24,6 +40,6 @@ export const ActionsMenu = ({
 		/>
 		<Menu.Divider title='Database' />
 		<Menu.Item text='Dump database' icon='floppy-disk' onClick={dumpDataBase} />
-		<Menu.Item text='Load database (TODO)' icon='database' disabled />
+		<Menu.Item text='Load database' icon='database' onClick={loadDataBase} />
 	</Menu>
 );

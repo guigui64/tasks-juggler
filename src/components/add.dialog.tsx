@@ -1,10 +1,22 @@
-import React from 'react';
-import { Dialog, Classes, Tooltip, Button } from '@blueprintjs/core';
+import React, { FunctionComponent } from 'react';
+import {
+	Dialog,
+	Classes,
+	Tooltip,
+	Button,
+	IDialogProps
+} from '@blueprintjs/core';
 
-export default ({ add, ...dialogProps }: any) => (
+type AddDialogProps = { add: () => void } & IDialogProps;
+
+const AddDialog: FunctionComponent<AddDialogProps> = ({
+	add,
+	...dialogProps
+}) => (
 	<Dialog icon='info-sign' title='Palantir Foundry' {...dialogProps}>
 		<div className={Classes.DIALOG_BODY}>
 			<p>TODO add project form</p>
+			{/* TODO add project form */}
 		</div>
 		<div className={Classes.DIALOG_FOOTER}>
 			<div className={Classes.DIALOG_FOOTER_ACTIONS}>
@@ -15,10 +27,12 @@ export default ({ add, ...dialogProps }: any) => (
 					text='Add'
 					onClick={() => {
 						add();
-						dialogProps.onClose();
+						dialogProps.onClose!();
 					}}
 				/>
 			</div>
 		</div>
 	</Dialog>
 );
+
+export default AddDialog;

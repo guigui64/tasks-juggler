@@ -1,7 +1,14 @@
-import React from 'react';
-import { Alert, Intent } from '@blueprintjs/core';
+import React, { FunctionComponent } from 'react';
+import { Alert, Intent, IAlertProps } from '@blueprintjs/core';
 
-export default ({ deletionTargetName, ...alertProps }: any) => (
+type DeleteAlertProps = {
+	deletionTargetName: string;
+} & IAlertProps;
+
+const DeleteAlert: FunctionComponent<DeleteAlertProps> = ({
+	deletionTargetName,
+	...alertProps
+}) => (
 	<Alert
 		cancelButtonText='Cancel'
 		icon='trash'
@@ -13,3 +20,5 @@ export default ({ deletionTargetName, ...alertProps }: any) => (
 		<p>{`Are you sure you want to delete ${deletionTargetName} ?`}</p>
 	</Alert>
 );
+
+export default DeleteAlert;

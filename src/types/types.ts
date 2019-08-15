@@ -1,18 +1,18 @@
-export interface DataBase {
+export type DataBase = {
 	projects: Project[];
 	tasks: Task[];
-}
+};
 
-export interface Project {
+export type Project = {
 	name: string;
 	desc: string;
 	id: number;
-}
+};
 
-export interface Task {
+export type Task = {
 	title: string;
 	desc: string;
 	id: number;
 	projectId: number;
 	duration: number; // in days
-}
+};
