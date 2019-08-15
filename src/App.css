@@ -1,10 +1,10 @@
 #container {
-  position: absolute;
-  width: 100%;
-  min-height: 100%;
-  background-color: #f5f8fa;
+	position: absolute;
+	width: 100%;
+	min-height: 100%;
+	background-color: #f5f8fa;
 }
 
 #container.bp3-dark {
-  background-color: #293742;
+	background-color: #293742;
 }
