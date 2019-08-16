@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import {
 	Alignment,
 	Button,
@@ -28,7 +28,7 @@ type NavbarProps = {
 	setShowOrphan: (b: boolean) => void;
 };
 
-const Navbar: FunctionComponent<NavbarProps> = ({
+const Navbar: FC<NavbarProps> = ({
 	theme,
 	setTheme,
 	dumpDataBase,
@@ -53,7 +53,9 @@ const Navbar: FunctionComponent<NavbarProps> = ({
 	return (
 		<BPNavbar>
 			<BPNavbar.Group align={Alignment.LEFT}>
-				<BPNavbar.Heading>Tasks Juggler</BPNavbar.Heading>
+				<BPNavbar.Heading style={{ fontWeight: 'bold' }}>
+					{'Tasks Juggler'.toUpperCase()}
+				</BPNavbar.Heading>
 			</BPNavbar.Group>
 			<BPNavbar.Group align={Alignment.RIGHT}>
 				<Tabs
@@ -67,7 +69,7 @@ const Navbar: FunctionComponent<NavbarProps> = ({
 						<Tabs.Tab
 							title={
 								<Tooltip content={p.desc} position={Position.BOTTOM}>
-									{p.name}
+									{p.name.toUpperCase()}
 								</Tooltip>
 							}
 							id={p.id}

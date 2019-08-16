@@ -1,4 +1,4 @@
-import React, { useState, FunctionComponent } from 'react';
+import React, { useState, FC } from 'react';
 import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 
 import './App.css';
@@ -16,7 +16,7 @@ import {
 	DATABASE_STORAGE_KEY
 } from './constants';
 import { DataBase, Project, Task } from './types/types';
-import TaskGroup from './components/taskgroup';
+import TaskGroup from './components/task.group';
 import {
 	DumpDataBaseDialog,
 	LoadDataBaseDialog
@@ -32,9 +32,8 @@ type AppProps = {
 	toaster: IToaster;
 };
 
-const App: FunctionComponent<AppProps> = ({ toaster }) => {
+const App: FC<AppProps> = ({ toaster }) => {
 	// Settings states
-	// TODO redux
 	const [showOrphan, setShowOrphan] = useState(
 		Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false)
 	);
@@ -182,4 +181,5 @@ const App: FunctionComponent<AppProps> = ({ toaster }) => {
 
 export default App;
 
-// TODO : document + comment code
+// TODO document + comment code
+// TODO tests

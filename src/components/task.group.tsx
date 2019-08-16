@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Task } from '../types/types';
 import { ALL_PROJECTS, NO_PROJECT } from '../constants';
 import TaskCard from './task.card';
@@ -10,11 +10,7 @@ type TaskGroupProps = {
 	selectedProject: number;
 };
 
-const TaskGroup: FunctionComponent<TaskGroupProps> = ({
-	title,
-	tasks,
-	selectedProject
-}) => (
+const TaskGroup: FC<TaskGroupProps> = ({ title, tasks, selectedProject }) => (
 	<div style={{ padding: '50px 50px 0 50px' }}>
 		<div style={{ display: 'inline' }}>
 			<H3 style={{ display: 'inline-block', marginRight: '10px' }}>{title}</H3>

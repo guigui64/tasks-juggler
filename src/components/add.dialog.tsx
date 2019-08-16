@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import {
 	Dialog,
 	Classes,
@@ -9,10 +9,7 @@ import {
 
 type AddDialogProps = { add: () => void } & IDialogProps;
 
-const AddDialog: FunctionComponent<AddDialogProps> = ({
-	add,
-	...dialogProps
-}) => (
+const AddDialog: FC<AddDialogProps> = ({ add, ...dialogProps }) => (
 	<Dialog icon='info-sign' title='Palantir Foundry' {...dialogProps}>
 		<div className={Classes.DIALOG_BODY}>
 			<p>TODO add project form</p>

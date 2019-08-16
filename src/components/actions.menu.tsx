@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Menu } from '@blueprintjs/core';
 import { ALL_PROJECTS } from '../constants';
 
@@ -10,7 +10,7 @@ type ActionsMenuProps = {
 	loadDataBase: () => void;
 };
 
-export const ActionsMenu: FunctionComponent<ActionsMenuProps> = ({
+export const ActionsMenu: FC<ActionsMenuProps> = ({
 	openAddProjDialog,
 	selectedProject,
 	openDeleteProjAlert,

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Card, Elevation } from '@blueprintjs/core';
 
 type TaskCardProps = {
@@ -7,11 +7,7 @@ type TaskCardProps = {
 	duration?: number;
 };
 
-const TaskCard: FunctionComponent<TaskCardProps> = ({
-	title,
-	desc,
-	duration
-}) => (
+const TaskCard: FC<TaskCardProps> = ({ title, desc, duration }) => (
 	<Card interactive={true} elevation={Elevation.TWO}>
 		<h3>{title}</h3>
 		<p>{desc}</p>

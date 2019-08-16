@@ -1,11 +1,11 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { Alert, Intent, IAlertProps } from '@blueprintjs/core';
 
 type DeleteAlertProps = {
 	deletionTargetName: string;
 } & IAlertProps;
 
-const DeleteAlert: FunctionComponent<DeleteAlertProps> = ({
+const DeleteAlert: FC<DeleteAlertProps> = ({
 	deletionTargetName,
 	...alertProps
 }) => (

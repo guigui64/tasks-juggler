@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React, { FC } from 'react';
 import { FormGroup, Switch, Alignment } from '@blueprintjs/core';
 import {
 	DARK_THEME,
@@ -14,7 +14,7 @@ type SettingsFormProps = {
 	setShowOrphan: (b: boolean) => void;
 };
 
-export const SettingsForm: FunctionComponent<SettingsFormProps> = ({
+export const SettingsForm: FC<SettingsFormProps> = ({
 	theme,
 	setTheme,
 	showOrphan,

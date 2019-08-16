@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useState } from 'react';
+import React, { FC, useState } from 'react';
 import {
 	Dialog,
 	Classes,
@@ -17,7 +17,7 @@ type DumpDataBaseDialogProps = {
 	onClipboard: () => void;
 } & IDialogProps;
 
-export const DumpDataBaseDialog: FunctionComponent<DumpDataBaseDialogProps> = ({
+export const DumpDataBaseDialog: FC<DumpDataBaseDialogProps> = ({
 	isOpen,
 	onClose,
 	dump,
@@ -73,7 +73,7 @@ type LoadDataBaseDialogProps = {
 	onLoad: (input: string) => boolean;
 } & IDialogProps;
 
-export const LoadDataBaseDialog: FunctionComponent<LoadDataBaseDialogProps> = ({
+export const LoadDataBaseDialog: FC<LoadDataBaseDialogProps> = ({
 	isOpen,
 	onClose,
 	onLoad
