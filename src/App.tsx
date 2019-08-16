@@ -27,6 +27,12 @@ import {
 	validateDB,
 	getNextProjectId
 } from './data/database';
+import { Transition } from 'react-transition-group';
+import {
+	ENTERING,
+	EXITING,
+	TransitionStatus
+} from 'react-transition-group/Transition';
 
 type AppProps = {
 	toaster: IToaster;
@@ -89,6 +95,18 @@ const App: FC<AppProps> = ({ toaster }) => {
 		toaster.show({ message, intent });
 	};
 
+	// TODO move it in taskgroup
+	const tranClass = (state: TransitionStatus) => {
+		switch (state) {
+			case ENTERING:
+				return 'animated fadeInDown fast';
+			case EXITING:
+				return 'animated fadeOutUp fast';
+			default:
+				return '';
+		}
+	};
+
 	return (
 		<div className={theme} id='container'>
 			<Navbar
@@ -112,13 +130,17 @@ const App: FC<AppProps> = ({ toaster }) => {
 				tasks={dataBase.tasks}
 				selectedProject={selectedProject}
 			/>
-			{showOrphan && (
-				<TaskGroup
-					title='Orphan tasks'
-					tasks={dataBase.tasks}
-					selectedProject={NO_PROJECT}
-				/>
-			)}
+			<Transition in={showOrphan} timeout={800} unmountOnExit>
+				{state => (
+					<div className={tranClass(state)}>
+						<TaskGroup
+							title='Orphan tasks'
+							tasks={dataBase.tasks}
+							selectedProject={NO_PROJECT}
+						/>
+					</div>
+				)}
+			</Transition>
 			<div style={{ padding: '50px 50px 0 50px' }}>
 				<div style={{ display: 'inline' }}>
 					<H3 style={{ display: 'inline-block', marginRight: '10px' }}>

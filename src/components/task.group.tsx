@@ -30,9 +30,10 @@ const TaskGroup: FC<TaskGroupProps> = ({ title, tasks, selectedProject }) => (
 		</div>
 		<div
 			style={{
+				marginTop: '10px',
 				display: 'grid',
 				gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-				gridGap: '20px'
+				gridGap: '10px'
 			}}
 		>
 			{tasks

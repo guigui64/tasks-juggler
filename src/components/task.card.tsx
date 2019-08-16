@@ -8,7 +8,11 @@ type TaskCardProps = {
 };
 
 const TaskCard: FC<TaskCardProps> = ({ title, desc, duration }) => (
-	<Card interactive={true} elevation={Elevation.TWO}>
+	<Card
+		interactive={true}
+		elevation={Elevation.TWO}
+		className='animated fadeIn fast' // TODO fadeOut when deleting
+	>
 		<h3>{title}</h3>
 		<p>{desc}</p>
 		{duration && <p>{`${duration} day(s)`}</p>}

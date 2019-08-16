@@ -29,7 +29,7 @@ export const SettingsForm: FC<SettingsFormProps> = ({
 		<Switch
 			alignIndicator={Alignment.RIGHT}
 			checked={theme === DARK_THEME}
-			onClick={() => {
+			onChange={() => {
 				const newTheme: string =
 					theme === LIGHT_THEME ? DARK_THEME : LIGHT_THEME;
 				setTheme(newTheme);
@@ -41,7 +41,7 @@ export const SettingsForm: FC<SettingsFormProps> = ({
 		<Switch
 			alignIndicator={Alignment.RIGHT}
 			checked={showOrphan}
-			onClick={() => {
+			onChange={() => {
 				const newShowOrphan: boolean = !showOrphan;
 				setShowOrphan(newShowOrphan);
 				localStorage.setItem(SHOW_ORPHAN_STORAGE_KEY, String(newShowOrphan));
