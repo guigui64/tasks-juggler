@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import {
 	Alignment,
 	Button,
@@ -9,9 +9,10 @@ import {
 } from '@blueprintjs/core';
 import { Navbar as BPNavbar } from '@blueprintjs/core';
 
+import { ReactComponent as Logo } from '../assets/juggler.svg';
 import { ActionsMenu } from './actions.menu';
 import { SettingsForm } from './settings.form';
-import { ALL_PROJECTS } from '../constants';
+import { ALL_PROJECTS, DARK_THEME } from '../constants';
 import { DataBase, Project } from '../types/types';
 
 type NavbarProps = {
@@ -49,12 +50,21 @@ const Navbar: FC<NavbarProps> = ({
 		},
 		...dataBase.projects
 	];
+	const [logoClass, setLogoClass] = useState('');
 
 	return (
 		<BPNavbar>
 			<BPNavbar.Group align={Alignment.LEFT}>
-				<BPNavbar.Heading style={{ fontWeight: 'bold' }}>
-					{'Tasks Juggler'.toUpperCase()}
+				<BPNavbar.Heading
+					style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}
+					className={logoClass}
+					onMouseEnter={() => setLogoClass('animated jello')}
+					onMouseLeave={() => setLogoClass('')}
+				>
+					<Logo height='40px' fill={theme === DARK_THEME ? 'white' : 'black'} />
+					<div style={{ marginLeft: '10px' }}>
+						{'Tasks Juggler'.toUpperCase()}
+					</div>
 				</BPNavbar.Heading>
 			</BPNavbar.Group>
 			<BPNavbar.Group align={Alignment.RIGHT}>
