@@ -1,11 +1,11 @@
-import React, { FC } from 'react';
 import {
-	Dialog,
-	Classes,
-	Tooltip,
 	Button,
-	IDialogProps
+	Classes,
+	Dialog,
+	IDialogProps,
+	Tooltip
 } from '@blueprintjs/core';
+import React, { FC } from 'react';
 
 type AddDialogProps = { add: () => void } & IDialogProps;
 

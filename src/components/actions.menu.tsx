@@ -1,5 +1,5 @@
-import React, { FC } from 'react';
 import { Menu } from '@blueprintjs/core';
+import React, { FC } from 'react';
 import { ALL_PROJECTS } from '../constants';
 
 type ActionsMenuProps = {

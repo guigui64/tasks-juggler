@@ -1,6 +1,5 @@
-import { DataBase } from '../types/types';
-
 import { NO_PROJECT } from '../constants';
+import { DataBase } from '../types/types';
 
 export const createFakeDataBase: () => DataBase = () => {
 	let initialProjectId = 0;

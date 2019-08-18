@@ -1,21 +1,16 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-
-import { Toaster, Position } from '@blueprintjs/core';
-import { Provider } from 'react-redux';
-
-import App from './App';
-import * as serviceWorker from './serviceWorker';
-
-import store from './store';
-
+import { Position, Toaster } from '@blueprintjs/core';
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
+import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 import 'animate.css';
 import 'normalize.css';
-import '@blueprintjs/core/lib/css/blueprint.css';
-import '@blueprintjs/icons/lib/css/blueprint-icons.css';
-import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
-
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import App from './App';
 import './index.css';
+import * as serviceWorker from './serviceWorker';
+import store from './store';
 
 const toaster = Toaster.create({
 	position: Position.TOP

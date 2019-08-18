@@ -1,5 +1,5 @@
+import { Alert, IAlertProps, Intent } from '@blueprintjs/core';
 import React, { FC } from 'react';
-import { Alert, Intent, IAlertProps } from '@blueprintjs/core';
 
 type DeleteAlertProps = {
 	deletionTargetName: string;

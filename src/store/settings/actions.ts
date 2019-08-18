@@ -1,10 +1,10 @@
-import {
-	SET_THEME,
-	SET_SHOW_ORPHAN,
-	SetThemeAction,
-	SetShowOrphanAction
-} from './types';
 import { ActionCreator } from 'redux';
+import {
+	SetShowOrphanAction,
+	SetThemeAction,
+	SET_SHOW_ORPHAN,
+	SET_THEME
+} from './types';
 
 // Type these action creators with `: ActionCreator<ActionTypeYouWantToPass>`.
 // Remember, you can also pass parameters into an action creator. Make sure to

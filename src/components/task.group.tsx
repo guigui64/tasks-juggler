@@ -1,8 +1,8 @@
+import { Button, ButtonGroup, H3 } from '@blueprintjs/core';
 import React, { FC } from 'react';
-import { Task } from '../types/types';
 import { ALL_PROJECTS, NO_PROJECT } from '../constants';
+import { Task } from '../types/types';
 import TaskCard from './task.card';
-import { H3, ButtonGroup, Button } from '@blueprintjs/core';
 
 type TaskGroupProps = {
 	title: string;

@@ -1,13 +1,13 @@
-import React, { FC, useState } from 'react';
 import {
-	Dialog,
-	Classes,
 	Button,
-	TextArea,
-	Intent,
+	Classes,
+	Dialog,
+	FileInput,
 	IDialogProps,
-	FileInput
+	Intent,
+	TextArea
 } from '@blueprintjs/core';
+import React, { FC, useState } from 'react';
 
 const fileSaver = require('file-saver');
 const fileReader = new FileReader();

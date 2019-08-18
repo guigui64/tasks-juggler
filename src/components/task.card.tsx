@@ -1,5 +1,5 @@
-import React, { FC } from 'react';
 import { Card, Elevation } from '@blueprintjs/core';
+import React, { FC } from 'react';
 
 type TaskCardProps = {
 	title: string;

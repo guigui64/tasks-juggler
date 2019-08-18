@@ -1,10 +1,10 @@
-import {
-	THEME_STORAGE_KEY,
-	LIGHT_THEME,
-	SHOW_ORPHAN_STORAGE_KEY
-} from '../../constants';
-import { SettingsState, SET_THEME, SET_SHOW_ORPHAN } from './types';
 import { Reducer } from 'redux';
+import {
+	LIGHT_THEME,
+	SHOW_ORPHAN_STORAGE_KEY,
+	THEME_STORAGE_KEY
+} from '../../constants';
+import { SettingsState, SET_SHOW_ORPHAN, SET_THEME } from './types';
 
 // Type-safe initial state
 const INITIAL_STATE: SettingsState = {
