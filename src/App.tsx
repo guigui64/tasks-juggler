@@ -195,3 +195,5 @@ export default connect(mapStateToProps)(App);
 
 // TODO document + comment code
 // TODO tests
+// TODO trade off redux vs context for settings
+// see https://frontarm.com/james-k-nelson/when-context-replaces-redux/
