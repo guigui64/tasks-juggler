@@ -1,52 +1,41 @@
-import React, { useState, FC } from 'react';
 import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
-
-import './App.css';
-
-import DeleteAlert from './components/delete.alert';
-import AddDialog from './components/add.dialog';
-import Navbar from './components/navbar';
-
-import {
-	ALL_PROJECTS,
-	LIGHT_THEME,
-	NO_PROJECT,
-	THEME_STORAGE_KEY,
-	SHOW_ORPHAN_STORAGE_KEY,
-	DATABASE_STORAGE_KEY
-} from './constants';
-import { DataBase, Project, Task } from './types/types';
-import TaskGroup from './components/task.group';
-import {
-	DumpDataBaseDialog,
-	LoadDataBaseDialog
-} from './components/database.dialogs';
+import React, { FC, useState } from 'react';
 import ReactDOM from 'react-dom';
-import {
-	createFakeDataBase,
-	validateDB,
-	getNextProjectId
-} from './data/database';
+import { connect } from 'react-redux';
 import { Transition } from 'react-transition-group';
 import {
 	ENTERING,
 	EXITING,
 	TransitionStatus
 } from 'react-transition-group/Transition';
+import './App.css';
+import AddDialog from './components/add.dialog';
+import {
+	DumpDataBaseDialog,
+	LoadDataBaseDialog
+} from './components/database.dialogs';
+import DeleteAlert from './components/delete.alert';
+import Navbar from './components/navbar';
+import TaskGroup from './components/task.group';
+import { ALL_PROJECTS, DATABASE_STORAGE_KEY, NO_PROJECT } from './constants';
+import {
+	createFakeDataBase,
+	getNextProjectId,
+	validateDB
+} from './data/database';
+import { AppState } from './store';
+import { DataBase, Project, Task } from './types/types';
+
+type AppStateProps = {
+	theme: string;
+	showOrphan: boolean;
+};
 
 type AppProps = {
 	toaster: IToaster;
-};
+} & AppStateProps;
 
-const App: FC<AppProps> = ({ toaster }) => {
-	// Settings states
-	const [showOrphan, setShowOrphan] = useState(
-		Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false)
-	);
-	const [theme, setTheme] = useState(
-		localStorage.getItem(THEME_STORAGE_KEY) || LIGHT_THEME
-	);
-
+const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	// Overlays states
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
@@ -113,16 +102,12 @@ const App: FC<AppProps> = ({ toaster }) => {
 				dumpDataBase={() => openDumpDBDialog(true)}
 				loadDataBase={() => openLoadDBDialog(true)}
 				{...{
-					theme,
-					setTheme,
 					setSelectedProject,
 					dataBase,
 					deleteProject,
 					selectedProject,
 					openDeleteProjAlert,
-					openAddProjDialog,
-					showOrphan,
-					setShowOrphan
+					openAddProjDialog
 				}}
 			/>
 			<TaskGroup
@@ -201,7 +186,12 @@ const App: FC<AppProps> = ({ toaster }) => {
 	);
 };
 
-export default App;
+const mapStateToProps = (state: AppState): AppStateProps => ({
+	theme: state.settings.theme,
+	showOrphan: state.settings.showOrphan
+});
+
+export default connect(mapStateToProps)(App);
 
 // TODO document + comment code
 // TODO tests

@@ -1,23 +1,26 @@
-import React, { FC, useState } from 'react';
 import {
 	Alignment,
 	Button,
+	Navbar as BPNavbar,
 	Popover,
 	Position,
 	Tabs,
 	Tooltip
 } from '@blueprintjs/core';
-import { Navbar as BPNavbar } from '@blueprintjs/core';
-
+import React, { FC, useState } from 'react';
+import { connect } from 'react-redux';
 import { ReactComponent as Logo } from '../assets/juggler.svg';
-import { ActionsMenu } from './actions.menu';
-import { SettingsForm } from './settings.form';
 import { ALL_PROJECTS, DARK_THEME } from '../constants';
+import { AppState } from '../store';
 import { DataBase, Project } from '../types/types';
+import { ActionsMenu } from './actions.menu';
+import SettingsForm from './settings.form';
+
+type NavbarStateProps = {
+	theme: string;
+};
 
 type NavbarProps = {
-	theme: string;
-	setTheme: (s: string) => void;
 	dumpDataBase: () => void;
 	loadDataBase: () => void;
 	setSelectedProject: (p: number) => void;
@@ -25,22 +28,17 @@ type NavbarProps = {
 	selectedProject: number;
 	openDeleteProjAlert: (b: boolean) => void;
 	openAddProjDialog: (b: boolean) => void;
-	showOrphan: boolean;
-	setShowOrphan: (b: boolean) => void;
-};
+} & NavbarStateProps;
 
 const Navbar: FC<NavbarProps> = ({
 	theme,
-	setTheme,
 	dumpDataBase,
 	loadDataBase,
 	setSelectedProject,
 	dataBase,
 	selectedProject,
 	openDeleteProjAlert,
-	openAddProjDialog,
-	showOrphan,
-	setShowOrphan
+	openAddProjDialog
 }) => {
 	const projects: Project[] = [
 		{
@@ -104,12 +102,7 @@ const Navbar: FC<NavbarProps> = ({
 				>
 					<Button minimal icon='build' text='Actions' />
 				</Popover>
-				<Popover
-					content={
-						<SettingsForm {...{ theme, setTheme, showOrphan, setShowOrphan }} />
-					}
-					position={Position.BOTTOM}
-				>
+				<Popover content={<SettingsForm />} position={Position.BOTTOM}>
 					<Button minimal icon='cog' text='Settings' />
 				</Popover>
 			</BPNavbar.Group>
@@ -117,4 +110,8 @@ const Navbar: FC<NavbarProps> = ({
 	);
 };
 
-export default Navbar;
+const mapStateToProps = (state: AppState): NavbarStateProps => ({
+	theme: state.settings.theme
+});
+
+export default connect(mapStateToProps)(Navbar);

@@ -1,20 +1,28 @@
+import { Alignment, FormGroup, Switch } from '@blueprintjs/core';
 import React, { FC } from 'react';
-import { FormGroup, Switch, Alignment } from '@blueprintjs/core';
+import { connect } from 'react-redux';
+import { Dispatch } from 'redux';
 import {
 	DARK_THEME,
 	LIGHT_THEME,
-	THEME_STORAGE_KEY,
-	SHOW_ORPHAN_STORAGE_KEY
+	SHOW_ORPHAN_STORAGE_KEY,
+	THEME_STORAGE_KEY
 } from '../constants';
+import { AppState } from '../store';
+import { setShowOrphan, setTheme } from '../store/settings/actions';
+import { SettingsActionTypes } from '../store/settings/types';
 
-type SettingsFormProps = {
+type SettingsFormStateProps = {
 	theme: string;
-	setTheme: (s: string) => void;
 	showOrphan: boolean;
-	setShowOrphan: (b: boolean) => void;
 };
+type SettingsFormDispatchProps = {
+	setTheme: (theme: string) => void;
+	setShowOrphan: (showOrphan: boolean) => void;
+};
+type SettingsFormProps = SettingsFormStateProps & SettingsFormDispatchProps;
 
-export const SettingsForm: FC<SettingsFormProps> = ({
+const SettingsForm: FC<SettingsFormProps> = ({
 	theme,
 	setTheme,
 	showOrphan,
@@ -51,3 +59,20 @@ export const SettingsForm: FC<SettingsFormProps> = ({
 		</Switch>
 	</FormGroup>
 );
+
+const mapStateToProps = (state: AppState): SettingsFormStateProps => ({
+	theme: state.settings.theme,
+	showOrphan: state.settings.showOrphan
+});
+
+const mapDispatchToProps = (
+	dispatch: Dispatch<SettingsActionTypes>
+): SettingsFormDispatchProps => ({
+	setTheme: (theme: string) => dispatch(setTheme(theme)),
+	setShowOrphan: (showOrphan: boolean) => dispatch(setShowOrphan(showOrphan))
+});
+
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(SettingsForm);
