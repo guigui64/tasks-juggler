@@ -182,7 +182,9 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 					return true;
 				}}
 			/>
-			<div id='footer'>Copyright - Guillaume Comte - 2019</div>
+			<div id='footer'>
+				&copy; 2019 &ndash; Guillaume Comte &ndash; All rights reserved
+			</div>
 		</div>
 	);
 };
