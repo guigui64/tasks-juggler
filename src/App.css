@@ -8,3 +8,13 @@
 #container.bp3-dark {
 	background-color: #293742;
 }
+
+#footer {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 30px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
