@@ -28,6 +28,7 @@ type NavbarProps = {
 	selectedProject: number;
 	openDeleteProjAlert: (b: boolean) => void;
 	openAddProjDialog: (b: boolean) => void;
+	openEditProjDialog: (b: boolean) => void;
 } & NavbarStateProps;
 
 const Navbar: FC<NavbarProps> = ({
@@ -38,7 +39,8 @@ const Navbar: FC<NavbarProps> = ({
 	dataBase,
 	selectedProject,
 	openDeleteProjAlert,
-	openAddProjDialog
+	openAddProjDialog,
+	openEditProjDialog
 }) => {
 	const projects: Project[] = [
 		{
@@ -91,6 +93,7 @@ const Navbar: FC<NavbarProps> = ({
 						<ActionsMenu
 							{...{
 								openAddProjDialog,
+								openEditProjDialog,
 								selectedProject,
 								openDeleteProjAlert,
 								dumpDataBase,

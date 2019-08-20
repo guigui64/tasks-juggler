@@ -3,7 +3,10 @@ import React, { FC, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import './App.css';
-import AddDialog from './components/add.dialog';
+import {
+	AddProjectDialog,
+	EditProjectDialog
+} from './components/add-edit.dialog';
 import {
 	DumpDataBaseDialog,
 	LoadDataBaseDialog
@@ -15,7 +18,9 @@ import { ALL_PROJECTS, DATABASE_STORAGE_KEY, NO_PROJECT } from './constants';
 import {
 	createFakeDataBase,
 	getNextProjectId,
-	validateDB
+	getProject,
+	validateDB,
+	validateProjectName
 } from './data/database';
 import { AppState } from './store';
 import { DataBase, Project, Task } from './types/types';
@@ -33,6 +38,7 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	// Overlays states
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
+	const [editProjDialogOpen, openEditProjDialog] = useState(false);
 	const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
 	const [loadDBDialogOpen, openLoadDBDialog] = useState(false);
 
@@ -51,15 +57,25 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	};
 	const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
 
-	const addProject = (name: string) => {
+	const addProject = (name: string, desc: string) => {
 		const projectId = getNextProjectId(dataBase);
 		dataBase.projects.push({
 			name: name,
-			desc: '',
+			desc: desc,
 			id: projectId
 		});
 		updateDataBase(dataBase);
 		setSelectedProject(projectId);
+	};
+
+	const editProject = (id: number, name: string, desc: string) => {
+		dataBase.projects.forEach(p => {
+			if (p.id === id) {
+				p.name = name;
+				p.desc = desc;
+			}
+		});
+		updateDataBase(dataBase);
 	};
 
 	const deleteProject = (projectId: number) => {
@@ -89,7 +105,8 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 					deleteProject,
 					selectedProject,
 					openDeleteProjAlert,
-					openAddProjDialog
+					openAddProjDialog,
+					openEditProjDialog
 				}}
 			/>
 			<TaskGroup
@@ -126,11 +143,18 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 								.name
 				}
 			/>
-			<AddDialog
+			<AddProjectDialog
 				isOpen={addProjDialogOpen}
 				onClose={() => openAddProjDialog(false)}
-				add={() => addProject('Test' + getNextProjectId(dataBase))}
-				// TODO project name
+				add={addProject}
+				validateName={validateProjectName(dataBase)}
+			/>
+			<EditProjectDialog
+				isOpen={editProjDialogOpen}
+				onClose={() => openEditProjDialog(false)}
+				edit={editProject}
+				validateName={validateProjectName(dataBase)}
+				project={getProject(dataBase)(selectedProject)!}
 			/>
 			<DumpDataBaseDialog
 				isOpen={dumpDBDialogOpen}

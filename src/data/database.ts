@@ -1,5 +1,5 @@
 import { NO_PROJECT } from '../constants';
-import { DataBase } from '../types/types';
+import { DataBase, Project } from '../types/types';
 
 export const createFakeDataBase: () => DataBase = () => {
 	let initialProjectId = 0;
@@ -140,4 +140,35 @@ export const getNextTaskId: (db: DataBase, projectId: number) => number = (
 			.map(t => t.id)
 			.reduce((p, c) => Math.max(p, c)) + 1
 	);
+};
+
+export const NOK_TOO_SHORT = 'ProjectNameValidity::NOK_TOO_SHORT';
+export const NOK_NAME_TAKEN = 'ProjectNameValidity::NOK_NAME_TAKEN';
+export const NOK_OTHER = 'ProjectNameValidity::NOK_OTHER';
+export const OK = 'ProjectNameValidity::OK';
+export type ProjectNameValidity =
+	| typeof NOK_TOO_SHORT
+	| typeof NOK_NAME_TAKEN
+	| typeof NOK_OTHER
+	| typeof OK;
+
+export const validateProjectName = (db: DataBase) => (
+	name: string
+): { valid: ProjectNameValidity; reason?: string } => {
+	if (name.length < 3) {
+		return { valid: NOK_TOO_SHORT, reason: 'Too short' };
+	}
+	if (db.projects.find(p => p.name.toUpperCase() === name.toUpperCase())) {
+		return {
+			valid: NOK_NAME_TAKEN,
+			reason: `Project with name ${name} already exists`
+		};
+	}
+	return { valid: OK };
+};
+
+export const getProject = (db: DataBase) => (
+	id: number
+): Project | undefined => {
+	return db.projects.find(p => p.id === id);
 };

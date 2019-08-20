@@ -4,6 +4,7 @@ import { ALL_PROJECTS } from '../constants';
 
 type ActionsMenuProps = {
 	openAddProjDialog: (b: boolean) => void;
+	openEditProjDialog: (b: boolean) => void;
 	selectedProject: number;
 	openDeleteProjAlert: (b: boolean) => void;
 	dumpDataBase: () => void;
@@ -12,6 +13,7 @@ type ActionsMenuProps = {
 
 export const ActionsMenu: FC<ActionsMenuProps> = ({
 	openAddProjDialog,
+	openEditProjDialog,
 	selectedProject,
 	openDeleteProjAlert,
 	dumpDataBase,
@@ -28,8 +30,7 @@ export const ActionsMenu: FC<ActionsMenuProps> = ({
 			text='Edit project'
 			icon='edit'
 			disabled={selectedProject === ALL_PROJECTS}
-			onClick={() => console.log('TODO edit project')}
-			// TODO edit project
+			onClick={() => openEditProjDialog(true)}
 		/>
 		<Menu.Item
 			text='Delete project'
