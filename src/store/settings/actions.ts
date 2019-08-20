@@ -1,7 +1,9 @@
 import { ActionCreator } from 'redux';
 import {
+	SetShowButtonTextAction,
 	SetShowOrphanAction,
 	SetThemeAction,
+	SET_SHOW_BUTTON_TEXT,
 	SET_SHOW_ORPHAN,
 	SET_THEME
 } from './types';
@@ -20,4 +22,11 @@ export const setShowOrphan: ActionCreator<SetShowOrphanAction> = (
 ) => ({
 	type: SET_SHOW_ORPHAN,
 	payload: showOrphan
+});
+
+export const setShowButtonText: ActionCreator<SetShowButtonTextAction> = (
+	showButtonText: boolean
+) => ({
+	type: SET_SHOW_BUTTON_TEXT,
+	payload: showButtonText
 });

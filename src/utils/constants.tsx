@@ -8,6 +8,7 @@ export const LIGHT_THEME = '';
 const prefix = 'tasks-juggler-';
 export const THEME_STORAGE_KEY = prefix + 'theme';
 export const SHOW_ORPHAN_STORAGE_KEY = prefix + 'show-orphan';
+export const SHOW_BUTTON_TEXT_STORAGE_KEY = prefix + 'show-button-text';
 export const DATABASE_STORAGE_KEY = prefix + 'database';
 
 // Projects

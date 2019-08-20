@@ -2,28 +2,33 @@ import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 import React, { FC, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import './App.css';
+import { AppState } from '../../store';
 import {
-	AddProjectDialog,
-	EditProjectDialog
-} from './components/add-edit.dialog';
-import {
-	DumpDataBaseDialog,
-	LoadDataBaseDialog
-} from './components/database.dialogs';
-import DeleteAlert from './components/delete.alert';
-import Navbar from './components/navbar';
-import TaskGroup from './components/task.group';
-import { ALL_PROJECTS, DATABASE_STORAGE_KEY, NO_PROJECT } from './constants';
+	ALL_PROJECTS,
+	DATABASE_STORAGE_KEY,
+	NO_PROJECT
+} from '../../utils/constants';
 import {
 	createFakeDataBase,
 	getNextProjectId,
 	getProject,
 	validateDB,
 	validateProjectName
-} from './data/database';
-import { AppState } from './store';
-import { DataBase, Project, Task } from './types/types';
+} from '../../utils/data/database';
+import { DataBase, Project, Task } from '../../utils/types/types';
+import Navbar from '../nav/navbar';
+import {
+	AddProjectDialog,
+	AddTaskDialog,
+	EditProjectDialog
+} from '../overlays/add-edit.dialog';
+import {
+	DumpDataBaseDialog,
+	LoadDataBaseDialog
+} from '../overlays/database.dialogs';
+import DeleteAlert from '../overlays/delete.alert';
+import TaskGroup from '../tasks/task.group';
+import './app.css';
 
 type AppStateProps = {
 	theme: string;
@@ -39,6 +44,9 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
 	const [editProjDialogOpen, openEditProjDialog] = useState(false);
+	// TODO edit task
+	const [deleteTaskAlertOpen, openDeleteTaskAlert] = useState(false);
+	const [addTaskDialogOpen, openAddTaskDialog] = useState(false);
 	const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
 	const [loadDBDialogOpen, openLoadDBDialog] = useState(false);
 
@@ -104,21 +112,27 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 					dataBase,
 					deleteProject,
 					selectedProject,
-					openDeleteProjAlert,
 					openAddProjDialog,
-					openEditProjDialog
+					openDeleteProjAlert,
+					openEditProjDialog,
+					openAddTaskDialog,
+					openDeleteTaskAlert
 				}}
 			/>
 			<TaskGroup
 				title='Tasks'
 				tasks={dataBase.tasks}
 				selectedProject={selectedProject}
+				openAddTaskDialog={openAddTaskDialog}
+				openDeleteTaskAlert={openDeleteTaskAlert}
 			/>
 			<TaskGroup
 				title='Orphan tasks'
 				tasks={dataBase.tasks}
 				selectedProject={NO_PROJECT}
 				show={showOrphan}
+				openAddTaskDialog={openAddTaskDialog}
+				openDeleteTaskAlert={openDeleteTaskAlert}
 			/>
 			<div style={{ padding: '50px 50px 0 50px' }}>
 				<div style={{ display: 'inline' }}>
@@ -127,7 +141,23 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 					</H3>
 				</div>
 			</div>
+			<div id='footer'>
+				&copy; 2019 &ndash; Guillaume Comte &ndash; All rights reserved
+			</div>
 			{/* Overlays : */}
+			<AddProjectDialog
+				isOpen={addProjDialogOpen}
+				onClose={() => openAddProjDialog(false)}
+				add={addProject}
+				validateName={validateProjectName(dataBase)}
+			/>
+			<EditProjectDialog
+				isOpen={editProjDialogOpen}
+				onClose={() => openEditProjDialog(false)}
+				edit={editProject}
+				validateName={validateProjectName(dataBase)}
+				project={getProject(dataBase)(selectedProject)!}
+			/>
 			<DeleteAlert
 				confirmButtonText='Delete project'
 				isOpen={deleteProjAlertOpen}
@@ -143,18 +173,23 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 								.name
 				}
 			/>
-			<AddProjectDialog
-				isOpen={addProjDialogOpen}
-				onClose={() => openAddProjDialog(false)}
-				add={addProject}
-				validateName={validateProjectName(dataBase)}
+			<AddTaskDialog
+				isOpen={addTaskDialogOpen}
+				onClose={() => openAddTaskDialog(false)}
+				add={(title: string, desc: string, duration: number | undefined) => {
+					console.log(title, desc, duration);
+					// TODO add task
+				}}
 			/>
-			<EditProjectDialog
-				isOpen={editProjDialogOpen}
-				onClose={() => openEditProjDialog(false)}
-				edit={editProject}
-				validateName={validateProjectName(dataBase)}
-				project={getProject(dataBase)(selectedProject)!}
+			<DeleteAlert
+				confirmButtonText='Delete task'
+				isOpen={deleteTaskAlertOpen}
+				onCancel={() => openDeleteTaskAlert(false)}
+				onConfirm={() => {
+					openDeleteTaskAlert(false);
+					// TODO delete task
+				}}
+				deletionTargetName={'TODO selected task(s)'}
 			/>
 			<DumpDataBaseDialog
 				isOpen={dumpDBDialogOpen}
@@ -183,9 +218,6 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 					return true;
 				}}
 			/>
-			<div id='footer'>
-				&copy; 2019 &ndash; Guillaume Comte &ndash; All rights reserved
-			</div>
 		</div>
 	);
 };
@@ -199,5 +231,6 @@ export default connect(mapStateToProps)(App);
 
 // TODO document + comment code
 // TODO tests
-// TODO trade off redux vs context for settings
-// see https://frontarm.com/james-k-nelson/when-context-replaces-redux/
+// TODO escape on main => deselect all tasks
+// TODO add buttons select all / unselect all
+// TODO make navbar reactive to small screens

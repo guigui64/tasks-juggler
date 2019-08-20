@@ -9,15 +9,16 @@ import {
 } from '@blueprintjs/core';
 import React, { FC, useState } from 'react';
 import { connect } from 'react-redux';
-import { ReactComponent as Logo } from '../assets/juggler.svg';
-import { ALL_PROJECTS, DARK_THEME } from '../constants';
-import { AppState } from '../store';
-import { DataBase, Project } from '../types/types';
+import { ReactComponent as Logo } from '../../assets/images/juggler.svg';
+import { AppState } from '../../store';
+import { ALL_PROJECTS, DARK_THEME } from '../../utils/constants';
+import { DataBase, Project } from '../../utils/types/types';
 import { ActionsMenu } from './actions.menu';
 import SettingsForm from './settings.form';
 
 type NavbarStateProps = {
 	theme: string;
+	showButtonText: boolean;
 };
 
 type NavbarProps = {
@@ -40,7 +41,8 @@ const Navbar: FC<NavbarProps> = ({
 	selectedProject,
 	openDeleteProjAlert,
 	openAddProjDialog,
-	openEditProjDialog
+	openEditProjDialog,
+	showButtonText
 }) => {
 	const projects: Project[] = [
 		{
@@ -51,17 +53,45 @@ const Navbar: FC<NavbarProps> = ({
 		...dataBase.projects
 	];
 	const [logoClass, setLogoClass] = useState('');
+	const logoAnimation = [
+		'bounce',
+		'flash',
+		'pulse',
+		'rubberBand',
+		'headShake',
+		'swing',
+		'tada',
+		'wobble',
+		'jello',
+		'heartBeat'
+	];
+	const [logoAnimationIdx, setLogoAnimationIdx] = useState(0);
 
 	return (
 		<BPNavbar>
 			<BPNavbar.Group align={Alignment.LEFT}>
 				<BPNavbar.Heading
-					style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center' }}
-					className={logoClass}
-					onMouseEnter={() => setLogoClass('animated jello')}
-					onMouseLeave={() => setLogoClass('')}
+					style={{
+						fontWeight: 'bold',
+						display: 'flex',
+						alignItems: 'center'
+					}}
+					onMouseEnter={() =>
+						setLogoClass('animated ' + logoAnimation[logoAnimationIdx])
+					}
+					onMouseLeave={() => {
+						setLogoClass('');
+						setLogoAnimationIdx((logoAnimationIdx + 1) % logoAnimation.length);
+					}}
 				>
-					<Logo height='40px' fill={theme === DARK_THEME ? 'white' : 'black'} />
+					<Logo
+						className={logoClass}
+						style={{
+							animationIterationCount: 'infinite'
+						}}
+						height='40px'
+						fill={theme === DARK_THEME ? 'white' : 'black'}
+					/>
 					<div style={{ marginLeft: '10px' }}>
 						{'Tasks Juggler'.toUpperCase()}
 					</div>
@@ -103,10 +133,10 @@ const Navbar: FC<NavbarProps> = ({
 					}
 					position={Position.BOTTOM}
 				>
-					<Button minimal icon='build' text='Actions' />
+					<Button minimal icon='build' text={showButtonText && 'Actions'} />
 				</Popover>
 				<Popover content={<SettingsForm />} position={Position.BOTTOM}>
-					<Button minimal icon='cog' text='Settings' />
+					<Button minimal icon='cog' text={showButtonText && 'Settings'} />
 				</Popover>
 			</BPNavbar.Group>
 		</BPNavbar>
@@ -114,7 +144,8 @@ const Navbar: FC<NavbarProps> = ({
 };
 
 const mapStateToProps = (state: AppState): NavbarStateProps => ({
-	theme: state.settings.theme
+	theme: state.settings.theme,
+	showButtonText: state.settings.showButtonText
 });
 
 export default connect(mapStateToProps)(Navbar);

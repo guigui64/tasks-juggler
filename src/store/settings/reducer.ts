@@ -1,15 +1,24 @@
 import { Reducer } from 'redux';
 import {
 	LIGHT_THEME,
+	SHOW_BUTTON_TEXT_STORAGE_KEY,
 	SHOW_ORPHAN_STORAGE_KEY,
 	THEME_STORAGE_KEY
-} from '../../constants';
-import { SettingsState, SET_SHOW_ORPHAN, SET_THEME } from './types';
+} from '../../utils/constants';
+import {
+	SettingsState,
+	SET_SHOW_BUTTON_TEXT,
+	SET_SHOW_ORPHAN,
+	SET_THEME
+} from './types';
 
 // Type-safe initial state
 const INITIAL_STATE: SettingsState = {
 	theme: localStorage.getItem(THEME_STORAGE_KEY) || LIGHT_THEME,
-	showOrphan: Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false)
+	showOrphan: Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false),
+	showButtonText: Boolean(
+		localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY) || true
+	)
 };
 
 const settingsReducer: Reducer<SettingsState> = (
@@ -26,6 +35,11 @@ const settingsReducer: Reducer<SettingsState> = (
 			return {
 				...state,
 				showOrphan: action.payload
+			};
+		case SET_SHOW_BUTTON_TEXT:
+			return {
+				...state,
+				showButtonText: action.payload
 			};
 		default:
 			return state;

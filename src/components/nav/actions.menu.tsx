@@ -1,6 +1,6 @@
 import { Menu } from '@blueprintjs/core';
 import React, { FC } from 'react';
-import { ALL_PROJECTS } from '../constants';
+import { ALL_PROJECTS } from '../../utils/constants';
 
 type ActionsMenuProps = {
 	openAddProjDialog: (b: boolean) => void;
