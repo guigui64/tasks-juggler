@@ -2,12 +2,6 @@ import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 import React, { FC, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Transition } from 'react-transition-group';
-import {
-	ENTERING,
-	EXITING,
-	TransitionStatus
-} from 'react-transition-group/Transition';
 import './App.css';
 import AddDialog from './components/add.dialog';
 import {
@@ -84,18 +78,6 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 		toaster.show({ message, intent });
 	};
 
-	// TODO move it in taskgroup
-	const tranClass = (state: TransitionStatus) => {
-		switch (state) {
-			case ENTERING:
-				return 'animated fadeInDown fast';
-			case EXITING:
-				return 'animated fadeOutUp fast';
-			default:
-				return '';
-		}
-	};
-
 	return (
 		<div className={theme} id='container'>
 			<Navbar
@@ -115,17 +97,12 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 				tasks={dataBase.tasks}
 				selectedProject={selectedProject}
 			/>
-			<Transition in={showOrphan} timeout={800} unmountOnExit>
-				{state => (
-					<div className={tranClass(state)}>
-						<TaskGroup
-							title='Orphan tasks'
-							tasks={dataBase.tasks}
-							selectedProject={NO_PROJECT}
-						/>
-					</div>
-				)}
-			</Transition>
+			<TaskGroup
+				title='Orphan tasks'
+				tasks={dataBase.tasks}
+				selectedProject={NO_PROJECT}
+				show={showOrphan}
+			/>
 			<div style={{ padding: '50px 50px 0 50px' }}>
 				<div style={{ display: 'inline' }}>
 					<H3 style={{ display: 'inline-block', marginRight: '10px' }}>
