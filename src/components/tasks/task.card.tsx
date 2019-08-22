@@ -9,7 +9,7 @@ type TaskCardProps = {
 };
 
 const TaskCard: FC<TaskCardProps> = ({ title, desc, duration, onClick }) => {
-	const [selected, select] = useState(false);
+	const [selected, select] = useState(false); // TODO use store
 	return (
 		<Card
 			interactive={true}

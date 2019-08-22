@@ -29,7 +29,7 @@ const TaskGroup: FC<TaskGroupProps> = ({
 	openDeleteTaskAlert,
 	showButtonText
 }) => {
-	const [selectedIds, setSelectedIds] = useState([] as number[]);
+	const [selectedIds, setSelectedIds] = useState([] as number[]); // TODO use store
 	const selectId = (id: number) => {
 		let newSelectedIds = [...selectedIds]; // shallow copy
 		if (newSelectedIds.includes(id)) {

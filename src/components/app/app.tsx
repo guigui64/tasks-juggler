@@ -1,8 +1,10 @@
 import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
-import React, { FC, useState } from 'react';
+import { ESCAPE } from '@blueprintjs/core/lib/esm/common/keys';
+import React, { FC, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
+import { unselectAll } from '../../store/tasks/actions';
 import {
 	ALL_PROJECTS,
 	DATABASE_STORAGE_KEY,
@@ -65,6 +67,7 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	};
 	const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
 
+	// Methods on database
 	const addProject = (name: string, desc: string) => {
 		const projectId = getNextProjectId(dataBase);
 		dataBase.projects.push({
@@ -75,7 +78,6 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 		updateDataBase(dataBase);
 		setSelectedProject(projectId);
 	};
-
 	const editProject = (id: number, name: string, desc: string) => {
 		dataBase.projects.forEach(p => {
 			if (p.id === id) {
@@ -85,7 +87,6 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 		});
 		updateDataBase(dataBase);
 	};
-
 	const deleteProject = (projectId: number) => {
 		dataBase.projects = dataBase.projects.filter(
 			(p: Project) => p.id !== projectId
@@ -97,10 +98,23 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 		setSelectedProject(ALL_PROJECTS);
 	};
 
+	// Toaster
 	ReactDOM.createPortal(toaster, document.getElementById('root')!);
 	const addToast = (message: string, intent: IIntentProps['intent']) => {
 		toaster.show({ message, intent });
 	};
+
+	// Listen to escape and unselect all tasks
+	useEffect(() => {
+		document.addEventListener('keydown', e => {
+			if (e.keyCode === ESCAPE) unselectAll(); // TODO dispatch unselectAll
+		});
+		return () => {
+			document.removeEventListener('keydown', e => {
+				if (e.keyCode === ESCAPE) unselectAll();
+			});
+		};
+	}, []);
 
 	return (
 		<div className={theme} id='container'>
