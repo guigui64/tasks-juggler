@@ -12,13 +12,16 @@ import {
 	SET_THEME
 } from './types';
 
+console.log(localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY));
+console.log(localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY) === undefined);
+
 // Type-safe initial state
 const INITIAL_STATE: SettingsState = {
 	theme: localStorage.getItem(THEME_STORAGE_KEY) || LIGHT_THEME,
-	showOrphan: Boolean(localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) || false),
-	showButtonText: Boolean(
-		localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY) || true
-	)
+	showOrphan: localStorage.getItem(SHOW_ORPHAN_STORAGE_KEY) === 'true',
+	showButtonText: localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY) === undefined
+		? true
+		: localStorage.getItem(SHOW_BUTTON_TEXT_STORAGE_KEY) === 'true'
 };
 
 const settingsReducer: Reducer<SettingsState> = (
