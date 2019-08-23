@@ -1,6 +1,5 @@
 import {
 	Alignment,
-	Button,
 	Navbar as BPNavbar,
 	Popover,
 	Position,
@@ -15,6 +14,7 @@ import { ALL_PROJECTS, DARK_THEME } from '../../utils/constants';
 import { DataBase, Project } from '../../utils/types/types';
 import { ActionsMenu } from './actions.menu';
 import SettingsForm from './settings.form';
+import TooltippedButton from '../tooltippedbutton/tooltippedbutton';
 
 type NavbarStateProps = {
 	theme: string;
@@ -133,10 +133,10 @@ const Navbar: FC<NavbarProps> = ({
 					}
 					position={Position.BOTTOM}
 				>
-					<Button minimal icon='build' text={showButtonText && 'Actions'} />
+					<TooltippedButton minimal icon='build' text='Actions' showButtonText={showButtonText} position={Position.LEFT} />
 				</Popover>
 				<Popover content={<SettingsForm />} position={Position.BOTTOM}>
-					<Button minimal icon='cog' text={showButtonText && 'Settings'} />
+					<TooltippedButton minimal icon='cog' text='Settings' showButtonText={showButtonText} position={Position.LEFT} />
 				</Popover>
 			</BPNavbar.Group>
 		</BPNavbar>

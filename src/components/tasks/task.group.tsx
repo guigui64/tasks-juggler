@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, H3 } from '@blueprintjs/core';
+import { ButtonGroup, H3, Position } from '@blueprintjs/core';
 import React, { FC, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
@@ -8,6 +8,7 @@ import Animation from '../animation/animation';
 import TaskCard from './task.card';
 import { TasksActionTypes } from '../../store/tasks/types';
 import { selectTask, unselectTask } from '../../store/tasks/actions';
+import TooltippedButton from '../tooltippedbutton/tooltippedbutton';
 
 type TaskGroupStateProps = {
 	showButtonText: boolean;
@@ -60,23 +61,26 @@ const TaskGroup: FC<TaskGroupProps> = ({
 				</H3>
 				<ButtonGroup>
 					{/* TODO add and delete task actions */}
-					<Button
-						text={showButtonText && 'Add task'}
+					<TooltippedButton
+						text='Add task'
+						position={Position.TOP}
+						showButtonText={showButtonText}
 						icon='add'
 						onClick={() => openAddTaskDialog(true)}
 					/>
-					<Button
-						text={
-							showButtonText &&
-							'Delete task' + (filteredTasks.filter(({id}) => selectedIds.includes(id)).length > 1 ? 's' : '')
-						}
+					<TooltippedButton
+						text={'Delete task' + (filteredTasks.filter(({id}) => selectedIds.includes(id)).length > 1 ? 's' : '')}
+						position={Position.TOP}
+						showButtonText={showButtonText}
 						icon='trash'
 						// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
 						onClick={() => openDeleteTaskAlert(true)}
 						disabled={filteredTasks.every(({id}) => !selectedIds.includes(id))}
 					/>
-					<Button
-						text={showButtonText && 'Select all'}
+					<TooltippedButton
+						text='Select all'
+						position={Position.TOP}
+						showButtonText={showButtonText}
 						icon='multi-select'
 						onClick={() => filteredTasks.forEach(({id}) => selectTask(id))}
 						disabled={
@@ -84,8 +88,10 @@ const TaskGroup: FC<TaskGroupProps> = ({
 							|| filteredTasks.every(({id}) => selectedIds.includes(id))
 						}
 					/>
-					<Button
-						text={showButtonText && 'Clear selection'}
+					<TooltippedButton
+						text='Clear selection'
+						position={Position.TOP}
+						showButtonText={showButtonText}
 						icon='eraser'
 						onClick={() => filteredTasks.forEach(({id}) => unselectTask(id))}
 						disabled={!filteredTasks.some(({id}) => selectedIds.includes(id))}
