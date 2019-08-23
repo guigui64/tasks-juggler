@@ -1,6 +1,6 @@
 import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 import { ESCAPE } from '@blueprintjs/core/lib/esm/common/keys';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState, Dispatch } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
@@ -31,17 +31,22 @@ import {
 import DeleteAlert from '../overlays/delete.alert';
 import TaskGroup from '../tasks/task.group';
 import './app.css';
+import { TasksActionTypes } from '../../store/tasks/types';
 
 type AppStateProps = {
 	theme: string;
 	showOrphan: boolean;
 };
 
+type AppDispatchProps = {
+	unselectAll: () => void;
+};
+
 type AppProps = {
 	toaster: IToaster;
-} & AppStateProps;
+} & AppStateProps & AppDispatchProps;
 
-const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
+const App: FC<AppProps> = ({ toaster, theme, showOrphan, unselectAll }) => {
 	// Overlays states
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
@@ -107,14 +112,14 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan }) => {
 	// Listen to escape and unselect all tasks
 	useEffect(() => {
 		document.addEventListener('keydown', e => {
-			if (e.keyCode === ESCAPE) unselectAll(); // TODO dispatch unselectAll
+			if (e.keyCode === ESCAPE) unselectAll();
 		});
 		return () => {
 			document.removeEventListener('keydown', e => {
 				if (e.keyCode === ESCAPE) unselectAll();
 			});
 		};
-	}, []);
+	}, [unselectAll]);
 
 	return (
 		<div className={theme} id='container'>
@@ -241,10 +246,14 @@ const mapStateToProps = (state: AppState): AppStateProps => ({
 	showOrphan: state.settings.showOrphan
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = (
+	dispatch: Dispatch<TasksActionTypes>
+): AppDispatchProps => ({
+	unselectAll: () => dispatch(unselectAll())
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
 
 // TODO document + comment code
 // TODO tests
-// TODO escape on main => deselect all tasks
-// TODO add buttons select all / unselect all
 // TODO make navbar reactive to small screens

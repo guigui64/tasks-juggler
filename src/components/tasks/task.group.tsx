@@ -1,14 +1,22 @@
 import { Button, ButtonGroup, H3 } from '@blueprintjs/core';
-import React, { FC, useState } from 'react';
+import React, { FC, Dispatch } from 'react';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
 import { ALL_PROJECTS, NO_PROJECT } from '../../utils/constants';
 import { Task } from '../../utils/types/types';
 import Animation from '../animation/animation';
 import TaskCard from './task.card';
+import { TasksActionTypes } from '../../store/tasks/types';
+import { selectTask, unselectTask } from '../../store/tasks/actions';
 
 type TaskGroupStateProps = {
 	showButtonText: boolean;
+	selectedIds: number[];
+};
+
+type TaskGroupDispatchProps = {
+	selectTask: (id: number) => void;
+	unselectTask: (id: number) => void;
 };
 
 type TaskGroupProps = {
@@ -18,7 +26,7 @@ type TaskGroupProps = {
 	show?: boolean;
 	openAddTaskDialog: (open: boolean) => void;
 	openDeleteTaskAlert: (open: boolean) => void;
-} & TaskGroupStateProps;
+} & TaskGroupStateProps & TaskGroupDispatchProps;
 
 const TaskGroup: FC<TaskGroupProps> = ({
 	title,
@@ -27,18 +35,16 @@ const TaskGroup: FC<TaskGroupProps> = ({
 	show = true,
 	openAddTaskDialog,
 	openDeleteTaskAlert,
-	showButtonText
+	showButtonText,
+	selectedIds,
+	selectTask,
+	unselectTask
 }) => {
-	const [selectedIds, setSelectedIds] = useState([] as number[]); // TODO use store
-	const selectId = (id: number) => {
-		let newSelectedIds = [...selectedIds]; // shallow copy
-		if (newSelectedIds.includes(id)) {
-			newSelectedIds = selectedIds.filter(s => s !== id);
-		} else {
-			newSelectedIds.push(id);
-		}
-		setSelectedIds(newSelectedIds);
-	};
+	const filteredTasks = tasks.filter(
+		t =>
+			t.projectId === selectedProject ||
+			(selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
+	);
 	return (
 		<Animation
 			in={show}
@@ -62,11 +68,27 @@ const TaskGroup: FC<TaskGroupProps> = ({
 					<Button
 						text={
 							showButtonText &&
-							'Delete task' + (selectedIds.length !== 1 ? 's' : '')
+							'Delete task' + (filteredTasks.filter(({id}) => selectedIds.includes(id)).length > 1 ? 's' : '')
 						}
 						icon='trash'
+						// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
 						onClick={() => openDeleteTaskAlert(true)}
-						disabled={selectedIds.length === 0}
+						disabled={filteredTasks.every(({id}) => !selectedIds.includes(id))}
+					/>
+					<Button
+						text={showButtonText && 'Select all'}
+						icon='multi-select'
+						onClick={() => filteredTasks.forEach(({id}) => selectTask(id))}
+						disabled={
+							filteredTasks.every(({id}) => !selectedIds.includes(id))
+							|| filteredTasks.every(({id}) => selectedIds.includes(id))
+						}
+					/>
+					<Button
+						text={showButtonText && 'Clear selection'}
+						icon='eraser'
+						onClick={() => filteredTasks.forEach(({id}) => unselectTask(id))}
+						disabled={!filteredTasks.some(({id}) => selectedIds.includes(id))}
 					/>
 				</ButtonGroup>
 			</div>
@@ -78,19 +100,15 @@ const TaskGroup: FC<TaskGroupProps> = ({
 					gridGap: '10px'
 				}}
 			>
-				{tasks
-					.filter(
-						t =>
-							t.projectId === selectedProject ||
-							(selectedProject === ALL_PROJECTS && t.projectId !== NO_PROJECT)
-					)
+				{filteredTasks
 					.map(task => {
 						let { title, desc, duration, id } = task;
 						return (
 							<TaskCard
 								{...{ title, desc, duration }}
 								key={id}
-								onClick={() => selectId(id)}
+								onClick={() => (selectedIds.includes(id) ? unselectTask(id) : selectTask(id))}
+								selected={selectedIds.includes(id)}
 							/>
 						);
 					})}
@@ -100,7 +118,15 @@ const TaskGroup: FC<TaskGroupProps> = ({
 };
 
 const mapStateToProps = (state: AppState): TaskGroupStateProps => ({
-	showButtonText: state.settings.showButtonText
+	showButtonText: state.settings.showButtonText,
+	selectedIds: state.tasks.selected
 });
 
-export default connect(mapStateToProps)(TaskGroup);
+const mapDispatchToProps = (
+	dispatch: Dispatch<TasksActionTypes>
+): TaskGroupDispatchProps => ({
+	selectTask: (id: number) => dispatch(selectTask(id)),
+	unselectTask: (id: number) => dispatch(unselectTask(id))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskGroup);
