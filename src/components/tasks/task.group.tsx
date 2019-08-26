@@ -77,25 +77,37 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						onClick={() => openDeleteTaskAlert(true)}
 						disabled={filteredTasks.every(({id}) => !selectedIds.includes(id))}
 					/>
-					<TooltippedButton
-						text='Select all'
-						position={Position.TOP}
-						showButtonText={showButtonText}
-						icon='multi-select'
-						onClick={() => filteredTasks.forEach(({id}) => selectTask(id))}
-						disabled={
-							filteredTasks.every(({id}) => !selectedIds.includes(id))
-							|| filteredTasks.every(({id}) => selectedIds.includes(id))
-						}
-					/>
-					<TooltippedButton
-						text='Clear selection'
-						position={Position.TOP}
-						showButtonText={showButtonText}
-						icon='eraser'
-						onClick={() => filteredTasks.forEach(({id}) => unselectTask(id))}
-						disabled={!filteredTasks.some(({id}) => selectedIds.includes(id))}
-					/>
+					<Animation
+						in={filteredTasks.some(({id}) => selectedIds.includes(id))}
+						timeout={800}
+						unmountOnExit
+						customStyle={{ display: 'inline' }}
+						enteringAnimation='fadeInLeft fast'
+						exitingAnimation='fadeOutLeft fast'
+					>
+						<div style={{display: 'inline-block'}}>
+							<TooltippedButton
+								text='Select all'
+								position={Position.TOP}
+								showButtonText={showButtonText}
+								icon='multi-select'
+								onClick={() => filteredTasks.forEach(({id}) => selectTask(id))}
+								disabled={
+									filteredTasks.every(({id}) => !selectedIds.includes(id))
+									|| filteredTasks.every(({id}) => selectedIds.includes(id))
+								}
+							/>
+						</div>
+						<div style={{display: 'inline-block'}}>
+							<TooltippedButton
+								text='Clear selection'
+								position={Position.TOP}
+								showButtonText={showButtonText}
+								icon='eraser'
+								onClick={() => filteredTasks.forEach(({id}) => unselectTask(id))}
+							/>
+						</div>
+					</Animation>
 				</ButtonGroup>
 			</div>
 			<div
