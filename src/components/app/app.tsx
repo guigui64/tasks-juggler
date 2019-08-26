@@ -51,7 +51,7 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan, unselectAll }) => {
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
 	const [editProjDialogOpen, openEditProjDialog] = useState(false);
-	// TODO edit task
+	// TODO edit task dialog
 	const [deleteTaskAlertOpen, openDeleteTaskAlert] = useState(false);
 	const [addTaskDialogOpen, openAddTaskDialog] = useState(false);
 	const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
@@ -253,7 +253,3 @@ const mapDispatchToProps = (
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
-
-// TODO document + comment code
-// TODO tests
-// TODO make navbar reactive to small screens
