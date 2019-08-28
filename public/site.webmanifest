@@ -1,6 +1,6 @@
 {
-	"name": "",
-	"short_name": "",
+	"name": "Tasks Juggler",
+	"short_name": "Tasks Juggler",
 	"icons": [{
 			"src": "android-chrome-192x192.png",
 			"sizes": "192x192",
@@ -14,5 +14,6 @@
 	],
 	"theme_color": "#f5f8fa",
 	"background_color": "#f5f8fa",
-	"display": "standalone"
+	"display": "standalone",
+	"start_url": "/tasks-juggler"
 }
