@@ -23,7 +23,7 @@ export const reducers: Reducer<AppState> = combineReducers<AppState>({
 let middlewares: any[] | never[] = [];
 if (process.env.NODE_ENV !== 'production') {
 	// development or test
-	const logger = require('redux-logger');
+	const { logger } = require('redux-logger');
 	middlewares = [...middlewares, logger];
 }
 const store = createStore(
