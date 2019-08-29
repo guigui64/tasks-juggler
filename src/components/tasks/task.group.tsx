@@ -1,14 +1,14 @@
 import { ButtonGroup, H3, Position } from '@blueprintjs/core';
-import React, { FC, Dispatch } from 'react';
+import React, { Dispatch, FC } from 'react';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
+import { selectTask, unselectTask } from '../../store/tasks/actions';
+import { TasksActionTypes } from '../../store/tasks/types';
 import { ALL_PROJECTS, NO_PROJECT } from '../../utils/constants';
 import { Task } from '../../utils/types/types';
 import Animation from '../animation/animation';
-import TaskCard from './task.card';
-import { TasksActionTypes } from '../../store/tasks/types';
-import { selectTask, unselectTask } from '../../store/tasks/actions';
 import TooltippedButton from '../tooltippedbutton/tooltippedbutton';
+import TaskCard from './task.card';
 
 type TaskGroupStateProps = {
 	showButtonText: boolean;
@@ -27,7 +27,8 @@ type TaskGroupProps = {
 	show?: boolean;
 	openAddTaskDialog: (open: boolean) => void;
 	openDeleteTaskAlert: (open: boolean) => void;
-} & TaskGroupStateProps & TaskGroupDispatchProps;
+} & TaskGroupStateProps &
+	TaskGroupDispatchProps;
 
 const TaskGroup: FC<TaskGroupProps> = ({
 	title,
@@ -68,43 +69,54 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						icon='add'
 						onClick={() => openAddTaskDialog(true)}
 					/>
-					<TooltippedButton
-						text={'Delete task' + (filteredTasks.filter(({id}) => selectedIds.includes(id)).length > 1 ? 's' : '')}
-						position={Position.TOP}
-						showButtonText={showButtonText}
-						icon='trash'
-						// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
-						onClick={() => openDeleteTaskAlert(true)}
-						disabled={filteredTasks.every(({id}) => !selectedIds.includes(id))}
-					/>
 					<Animation
-						in={filteredTasks.some(({id}) => selectedIds.includes(id))}
+						in={filteredTasks.some(({ id }) => selectedIds.includes(id))}
 						timeout={800}
 						unmountOnExit
 						customStyle={{ display: 'inline' }}
 						enteringAnimation='fadeInLeft fast'
 						exitingAnimation='fadeOutLeft fast'
 					>
-						<div style={{display: 'inline-block'}}>
+						<div style={{ display: 'inline-block' }}>
+							<TooltippedButton
+								text={
+									'Delete task' +
+									(filteredTasks.filter(({ id }) => selectedIds.includes(id))
+										.length > 1
+										? 's'
+										: '')
+								}
+								position={Position.TOP}
+								showButtonText={showButtonText}
+								icon='trash'
+								// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
+								onClick={() => openDeleteTaskAlert(true)}
+							/>
+						</div>
+						<div style={{ display: 'inline-block' }}>
 							<TooltippedButton
 								text='Select all'
 								position={Position.TOP}
 								showButtonText={showButtonText}
 								icon='multi-select'
-								onClick={() => filteredTasks.forEach(({id}) => selectTask(id))}
+								onClick={() =>
+									filteredTasks.forEach(({ id }) => selectTask(id))
+								}
 								disabled={
-									filteredTasks.every(({id}) => !selectedIds.includes(id))
-									|| filteredTasks.every(({id}) => selectedIds.includes(id))
+									filteredTasks.every(({ id }) => !selectedIds.includes(id)) ||
+									filteredTasks.every(({ id }) => selectedIds.includes(id))
 								}
 							/>
 						</div>
-						<div style={{display: 'inline-block'}}>
+						<div style={{ display: 'inline-block' }}>
 							<TooltippedButton
 								text='Clear selection'
 								position={Position.TOP}
 								showButtonText={showButtonText}
 								icon='eraser'
-								onClick={() => filteredTasks.forEach(({id}) => unselectTask(id))}
+								onClick={() =>
+									filteredTasks.forEach(({ id }) => unselectTask(id))
+								}
 							/>
 						</div>
 					</Animation>
@@ -118,18 +130,19 @@ const TaskGroup: FC<TaskGroupProps> = ({
 					gridGap: '10px'
 				}}
 			>
-				{filteredTasks
-					.map(task => {
-						let { title, desc, duration, id } = task;
-						return (
-							<TaskCard
-								{...{ title, desc, duration }}
-								key={id}
-								onClick={() => (selectedIds.includes(id) ? unselectTask(id) : selectTask(id))}
-								selected={selectedIds.includes(id)}
-							/>
-						);
-					})}
+				{filteredTasks.map(task => {
+					let { title, desc, duration, id } = task;
+					return (
+						<TaskCard
+							{...{ title, desc, duration }}
+							key={id}
+							onClick={() =>
+								selectedIds.includes(id) ? unselectTask(id) : selectTask(id)
+							}
+							selected={selectedIds.includes(id)}
+						/>
+					);
+				})}
 			</div>
 		</Animation>
 	);
@@ -147,4 +160,7 @@ const mapDispatchToProps = (
 	unselectTask: (id: number) => dispatch(unselectTask(id))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaskGroup);
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(TaskGroup);
