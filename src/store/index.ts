@@ -1,6 +1,5 @@
 import { applyMiddleware, combineReducers, createStore, Reducer } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import logger from 'redux-logger';
 import settingsReducer from './settings/reducer';
 import { SettingsState } from './settings/types';
 import tasksReducer from './tasks/reducer';
@@ -21,7 +20,12 @@ export const reducers: Reducer<AppState> = combineReducers<AppState>({
 });
 
 // Create the store with the middlewares
-const middlewares = [logger];
+let middlewares: any[] | never[] = [];
+if (process.env.NODE_ENV !== 'production') {
+	// development or test
+	const logger = require('redux-logger');
+	middlewares = [...middlewares, logger];
+}
 const store = createStore(
 	reducers,
 	composeWithDevTools(applyMiddleware(...middlewares))
