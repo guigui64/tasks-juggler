@@ -12,9 +12,9 @@ import { ReactComponent as Logo } from '../../assets/images/juggler.svg';
 import { AppState } from '../../store';
 import { ALL_PROJECTS, DARK_THEME } from '../../utils/constants';
 import { DataBase, Project } from '../../utils/types/types';
+import TooltippedButton from '../tooltippedbutton/tooltippedbutton';
 import { ActionsMenu } from './actions.menu';
 import SettingsForm from './settings.form';
-import TooltippedButton from '../tooltippedbutton/tooltippedbutton';
 
 type NavbarStateProps = {
 	theme: string;
@@ -133,10 +133,20 @@ const Navbar: FC<NavbarProps> = ({
 					}
 					position={Position.BOTTOM}
 				>
-					<TooltippedButton minimal icon='build' text='Actions' showButtonText={showButtonText} position={Position.LEFT} />
+					<TooltippedButton
+						buttonProps={{ minimal: true, icon: 'build' }}
+						text='Actions'
+						showButtonText={showButtonText}
+						position={Position.LEFT}
+					/>
 				</Popover>
 				<Popover content={<SettingsForm />} position={Position.BOTTOM}>
-					<TooltippedButton minimal icon='cog' text='Settings' showButtonText={showButtonText} position={Position.LEFT} />
+					<TooltippedButton
+						buttonProps={{ minimal: true, icon: 'cog' }}
+						text='Settings'
+						showButtonText={showButtonText}
+						position={Position.LEFT}
+					/>
 				</Popover>
 			</BPNavbar.Group>
 		</BPNavbar>

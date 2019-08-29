@@ -68,8 +68,10 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						text={smallScreen ? 'Add' : 'Add task'}
 						position={Position.TOP}
 						showButtonText={showButtonText}
-						icon='add'
-						onClick={() => openAddTaskDialog(true)}
+						buttonProps={{
+							icon: 'add',
+							onClick: () => openAddTaskDialog(true)
+						}}
 					/>
 				</ButtonGroup>
 				<ButtonGroup>
@@ -95,9 +97,11 @@ const TaskGroup: FC<TaskGroupProps> = ({
 								}
 								position={Position.TOP}
 								showButtonText={showButtonText}
-								icon='trash'
-								// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
-								onClick={() => openDeleteTaskAlert(true)}
+								buttonProps={{
+									icon: 'trash',
+									// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
+									onClick: () => openDeleteTaskAlert(true)
+								}}
 							/>
 						</div>
 						<div style={{ display: 'inline-block' }}>
@@ -105,10 +109,11 @@ const TaskGroup: FC<TaskGroupProps> = ({
 								text='Select all'
 								position={Position.TOP}
 								showButtonText={showButtonText}
-								icon='multi-select'
-								onClick={() =>
-									filteredTasks.forEach(({ id }) => selectTask(id))
-								}
+								buttonProps={{
+									icon: 'multi-select',
+									onClick: () =>
+										filteredTasks.forEach(({ id }) => selectTask(id))
+								}}
 								disabled={
 									filteredTasks.every(({ id }) => !selectedIds.includes(id)) ||
 									filteredTasks.every(({ id }) => selectedIds.includes(id))
@@ -120,10 +125,11 @@ const TaskGroup: FC<TaskGroupProps> = ({
 								text={smallScreen ? 'Clear' : 'Clear selection'}
 								position={Position.TOP}
 								showButtonText={showButtonText}
-								icon='eraser'
-								onClick={() =>
-									filteredTasks.forEach(({ id }) => unselectTask(id))
-								}
+								buttonProps={{
+									icon: 'eraser',
+									onClick: () =>
+										filteredTasks.forEach(({ id }) => unselectTask(id))
+								}}
 							/>
 						</div>
 					</Animation>

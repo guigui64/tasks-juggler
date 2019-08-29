@@ -1,31 +1,43 @@
 import { Button, IButtonProps, Position, Tooltip } from '@blueprintjs/core';
 import React, { FC } from 'react';
+import { connect } from 'react-redux';
+import { AppState } from '../../store';
+
+type TooltippedButtonStateProps = {
+	smallScreen: boolean;
+};
 
 type TooltippedButtonProps = {
 	text: string;
 	showButtonText: boolean;
 	disabled?: boolean;
 	position?: Position;
-} & IButtonProps;
+	buttonProps?: IButtonProps;
+} & TooltippedButtonStateProps;
 
 const TooltippedButton: FC<TooltippedButtonProps> = ({
 	text,
 	showButtonText,
 	position,
 	disabled = false,
-	...otherProps
+	smallScreen,
+	buttonProps
 }) => (
 	<Tooltip
 		content={text}
-		disabled={disabled || showButtonText}
+		disabled={disabled || showButtonText || smallScreen}
 		position={position}
 	>
 		<Button
 			text={showButtonText ? text : ''}
 			disabled={disabled}
-			{...otherProps}
+			{...buttonProps}
 		/>
 	</Tooltip>
 );
 
-export default TooltippedButton;
+const mapStateToProps = (state: AppState): TooltippedButtonStateProps => ({
+	smallScreen: state.window.smallScreen
+});
+
+export default connect(mapStateToProps)(TooltippedButton);
