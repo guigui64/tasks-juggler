@@ -63,7 +63,6 @@ const TaskGroup: FC<TaskGroupProps> = ({
 					{title}
 				</H3>
 				<ButtonGroup>
-					{/* TODO add and delete task actions */}
 					<TooltippedButton
 						text={smallScreen ? 'Add' : 'Add task'}
 						position={Position.TOP}
@@ -99,8 +98,19 @@ const TaskGroup: FC<TaskGroupProps> = ({
 								showButtonText={showButtonText}
 								buttonProps={{
 									icon: 'trash',
-									// TODO /!\ when deleting selected tasks, only delete and unselect those related to this group /!\
-									onClick: () => openDeleteTaskAlert(true)
+									onClick: () => {
+										// trick : unselect tasks not in the current task group before deletion
+										tasks
+											.filter(
+												t =>
+													t.projectId !== selectedProject &&
+													(selectedProject === ALL_PROJECTS &&
+														t.projectId === NO_PROJECT)
+											)
+											.map(t => t.id)
+											.forEach(id => unselectTask(id));
+										openDeleteTaskAlert(true);
+									}
 								}}
 							/>
 						</div>

@@ -11,33 +11,37 @@ import { WindowActionTypes } from '../../store/window/types';
 import {
 	ALL_PROJECTS,
 	DATABASE_STORAGE_KEY,
-	NO_PROJECT
+	NO_PROJECT,
+	TASK_DURATION_NONE
 } from '../../utils/constants';
 import {
 	createFakeDataBase,
 	getNextProjectId,
+	getNextTaskId,
 	getProject,
 	validateDB,
-	validateProjectName
+	validateProjectName,
+	validateTaskTitle
 } from '../../utils/data/database';
 import { DataBase, Project, Task } from '../../utils/types/types';
 import Navbar from '../nav/navbar';
-import {
-	AddProjectDialog,
-	AddTaskDialog,
-	EditProjectDialog
-} from '../overlays/add-edit.dialog';
 import {
 	DumpDataBaseDialog,
 	LoadDataBaseDialog
 } from '../overlays/database.dialogs';
 import DeleteAlert from '../overlays/delete.alert';
+import {
+	AddProjectDialog,
+	EditProjectDialog
+} from '../overlays/project.dialogs';
+import { AddTaskDialog } from '../overlays/task.dialogs';
 import TaskGroup from '../tasks/task.group';
 import './app.css';
 
 type AppStateProps = {
 	theme: string;
 	showOrphan: boolean;
+	selectedTasks: number[];
 };
 
 type AppDispatchProps = {
@@ -54,6 +58,7 @@ const App: FC<AppProps> = ({
 	toaster,
 	theme,
 	showOrphan,
+	selectedTasks,
 	unselectAll,
 	setSmallScreen
 }) => {
@@ -111,6 +116,29 @@ const App: FC<AppProps> = ({
 		);
 		updateDataBase(dataBase);
 		setSelectedProject(ALL_PROJECTS);
+	};
+	const addTask = (
+		title: string,
+		desc: string,
+		projectId: number,
+		duration: number | undefined
+	) => {
+		dataBase.tasks.push({
+			id: getNextTaskId(dataBase),
+			duration: duration || TASK_DURATION_NONE,
+			...{
+				title,
+				projectId,
+				desc
+			}
+		});
+		updateDataBase(dataBase);
+		setSelectedProject(projectId);
+	};
+	const deleteTask = (taskId: number) => {
+		dataBase.tasks = dataBase.tasks.filter(t => t.id !== taskId);
+		updateDataBase(dataBase);
+		unselectAll();
 	};
 
 	// Toaster
@@ -208,10 +236,10 @@ const App: FC<AppProps> = ({
 			<AddTaskDialog
 				isOpen={addTaskDialogOpen}
 				onClose={() => openAddTaskDialog(false)}
-				add={(title: string, desc: string, duration: number | undefined) => {
-					console.log(title, desc, duration);
-					// TODO add task
-				}}
+				add={addTask}
+				validateTitle={validateTaskTitle(dataBase, selectedProject)}
+				projects={dataBase.projects}
+				selectedProjectId={selectedProject}
 			/>
 			<DeleteAlert
 				confirmButtonText='Delete task'
@@ -219,7 +247,7 @@ const App: FC<AppProps> = ({
 				onCancel={() => openDeleteTaskAlert(false)}
 				onConfirm={() => {
 					openDeleteTaskAlert(false);
-					// TODO delete task
+					selectedTasks.forEach(i => deleteTask(i));
 				}}
 				deletionTargetName={'TODO selected task(s)'}
 			/>
@@ -256,7 +284,8 @@ const App: FC<AppProps> = ({
 
 const mapStateToProps = (state: AppState): AppStateProps => ({
 	theme: state.settings.theme,
-	showOrphan: state.settings.showOrphan
+	showOrphan: state.settings.showOrphan,
+	selectedTasks: state.tasks.selected
 });
 
 const mapDispatchToProps = (

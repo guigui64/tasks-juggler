@@ -1,4 +1,4 @@
-import { NO_PROJECT } from '../constants';
+import { MIN_NAME_SIZE, NO_PROJECT } from '../constants';
 import { DataBase, Project } from '../types/types';
 
 export const createFakeDataBase: () => DataBase = () => {
@@ -130,41 +130,60 @@ export const getNextProjectId: (db: DataBase) => number = db => {
 	return db.projects.map(p => p.id).reduce((p, c) => Math.max(p, c)) + 1;
 };
 
-export const getNextTaskId: (db: DataBase, projectId: number) => number = (
-	db,
-	projectId
-) => {
-	return (
-		db.tasks
-			.filter(t => t.projectId === projectId)
-			.map(t => t.id)
-			.reduce((p, c) => Math.max(p, c)) + 1
-	);
+export const getNextTaskId: (db: DataBase) => number = db => {
+	return db.tasks.map(t => t.id).reduce((p, c) => Math.max(p, c)) + 1;
 };
 
-export const NOK_TOO_SHORT = 'ProjectNameValidity::NOK_TOO_SHORT';
-export const NOK_NAME_TAKEN = 'ProjectNameValidity::NOK_NAME_TAKEN';
-export const NOK_OTHER = 'ProjectNameValidity::NOK_OTHER';
-export const OK = 'ProjectNameValidity::OK';
+export const PNV_NOK_TOO_SHORT = 'ProjectNameValidity::NOK_TOO_SHORT';
+export const PNV_NOK_NAME_TAKEN = 'ProjectNameValidity::NOK_NAME_TAKEN';
+export const PNV_NOK_OTHER = 'ProjectNameValidity::NOK_OTHER';
+export const PNV_OK = 'ProjectNameValidity::OK';
 export type ProjectNameValidity =
-	| typeof NOK_TOO_SHORT
-	| typeof NOK_NAME_TAKEN
-	| typeof NOK_OTHER
-	| typeof OK;
+	| typeof PNV_NOK_TOO_SHORT
+	| typeof PNV_NOK_NAME_TAKEN
+	| typeof PNV_NOK_OTHER
+	| typeof PNV_OK;
 
 export const validateProjectName = (db: DataBase) => (
 	name: string
 ): { valid: ProjectNameValidity; reason?: string } => {
-	if (name.length < 3) {
-		return { valid: NOK_TOO_SHORT, reason: 'Too short' };
+	if (name.length < MIN_NAME_SIZE) {
+		return { valid: PNV_NOK_TOO_SHORT, reason: 'Too short' };
 	}
 	if (db.projects.find(p => p.name.toUpperCase() === name.toUpperCase())) {
 		return {
-			valid: NOK_NAME_TAKEN,
+			valid: PNV_NOK_NAME_TAKEN,
 			reason: `Project with name ${name} already exists`
 		};
 	}
-	return { valid: OK };
+	return { valid: PNV_OK };
+};
+
+export const TTV_NOK_TOO_SHORT = 'TaskTitleValidity::NOK_TOO_SHORT';
+export const TTV_NOK_TITLE_TAKEN = 'TaskTitleValidity::NOK_TITLE_TAKEN';
+export const TTV_NOK_OTHER = 'TaskTitleValidity::NOK_OTHER';
+export const TTV_OK = 'TaskTitleValidity::OK';
+export type TaskTitleValidity =
+	| typeof TTV_NOK_TOO_SHORT
+	| typeof TTV_NOK_TITLE_TAKEN
+	| typeof TTV_NOK_OTHER
+	| typeof TTV_OK;
+
+export const validateTaskTitle = (db: DataBase, projectId: number) => (
+	title: string
+): { valid: TaskTitleValidity; reason?: string } => {
+	if (title.length < MIN_NAME_SIZE) {
+		return { valid: TTV_NOK_TOO_SHORT, reason: 'Too short' };
+	}
+	if (
+		db.tasks.filter(t => t.projectId === projectId).some(t => t.title === title)
+	) {
+		return {
+			valid: TTV_NOK_TITLE_TAKEN,
+			reason: `Task with title ${title} already exists`
+		};
+	}
+	return { valid: TTV_OK };
 };
 
 export const getProject = (db: DataBase) => (
