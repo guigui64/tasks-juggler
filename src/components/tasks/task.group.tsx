@@ -13,6 +13,7 @@ import TaskCard from './task.card';
 type TaskGroupStateProps = {
 	showButtonText: boolean;
 	selectedIds: number[];
+	smallScreen: boolean;
 };
 
 type TaskGroupDispatchProps = {
@@ -40,7 +41,8 @@ const TaskGroup: FC<TaskGroupProps> = ({
 	showButtonText,
 	selectedIds,
 	selectTask,
-	unselectTask
+	unselectTask,
+	smallScreen
 }) => {
 	const filteredTasks = tasks.filter(
 		t =>
@@ -63,12 +65,14 @@ const TaskGroup: FC<TaskGroupProps> = ({
 				<ButtonGroup>
 					{/* TODO add and delete task actions */}
 					<TooltippedButton
-						text='Add task'
+						text={smallScreen ? 'Add' : 'Add task'}
 						position={Position.TOP}
 						showButtonText={showButtonText}
 						icon='add'
 						onClick={() => openAddTaskDialog(true)}
 					/>
+				</ButtonGroup>
+				<ButtonGroup>
 					<Animation
 						in={filteredTasks.some(({ id }) => selectedIds.includes(id))}
 						timeout={800}
@@ -80,11 +84,14 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						<div style={{ display: 'inline-block' }}>
 							<TooltippedButton
 								text={
-									'Delete task' +
-									(filteredTasks.filter(({ id }) => selectedIds.includes(id))
-										.length > 1
-										? 's'
-										: '')
+									smallScreen
+										? 'Delete'
+										: 'Delete task' +
+										  (filteredTasks.filter(({ id }) =>
+												selectedIds.includes(id)
+										  ).length > 1
+												? 's'
+												: '')
 								}
 								position={Position.TOP}
 								showButtonText={showButtonText}
@@ -110,7 +117,7 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						</div>
 						<div style={{ display: 'inline-block' }}>
 							<TooltippedButton
-								text='Clear selection'
+								text={smallScreen ? 'Clear' : 'Clear selection'}
 								position={Position.TOP}
 								showButtonText={showButtonText}
 								icon='eraser'
@@ -150,7 +157,8 @@ const TaskGroup: FC<TaskGroupProps> = ({
 
 const mapStateToProps = (state: AppState): TaskGroupStateProps => ({
 	showButtonText: state.settings.showButtonText,
-	selectedIds: state.tasks.selected
+	selectedIds: state.tasks.selected,
+	smallScreen: state.window.smallScreen
 });
 
 const mapDispatchToProps = (

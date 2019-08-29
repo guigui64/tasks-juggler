@@ -1,10 +1,13 @@
 import { H3, IIntentProps, Intent, IToaster } from '@blueprintjs/core';
 import { ESCAPE } from '@blueprintjs/core/lib/esm/common/keys';
-import React, { FC, useEffect, useState, Dispatch } from 'react';
+import React, { Dispatch, FC, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { AppState } from '../../store';
 import { unselectAll } from '../../store/tasks/actions';
+import { TasksActionTypes } from '../../store/tasks/types';
+import { setSmallScreen } from '../../store/window/actions';
+import { WindowActionTypes } from '../../store/window/types';
 import {
 	ALL_PROJECTS,
 	DATABASE_STORAGE_KEY,
@@ -31,7 +34,6 @@ import {
 import DeleteAlert from '../overlays/delete.alert';
 import TaskGroup from '../tasks/task.group';
 import './app.css';
-import { TasksActionTypes } from '../../store/tasks/types';
 
 type AppStateProps = {
 	theme: string;
@@ -40,13 +42,21 @@ type AppStateProps = {
 
 type AppDispatchProps = {
 	unselectAll: () => void;
+	setSmallScreen: (smallScreen: boolean) => void;
 };
 
 type AppProps = {
 	toaster: IToaster;
-} & AppStateProps & AppDispatchProps;
+} & AppStateProps &
+	AppDispatchProps;
 
-const App: FC<AppProps> = ({ toaster, theme, showOrphan, unselectAll }) => {
+const App: FC<AppProps> = ({
+	toaster,
+	theme,
+	showOrphan,
+	unselectAll,
+	setSmallScreen
+}) => {
 	// Overlays states
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
@@ -111,15 +121,18 @@ const App: FC<AppProps> = ({ toaster, theme, showOrphan, unselectAll }) => {
 
 	// Listen to escape and unselect all tasks
 	useEffect(() => {
-		document.addEventListener('keydown', e => {
+		const keydownListener = (e: KeyboardEvent) => {
 			if (e.keyCode === ESCAPE) unselectAll();
-		});
-		return () => {
-			document.removeEventListener('keydown', e => {
-				if (e.keyCode === ESCAPE) unselectAll();
-			});
 		};
+		document.addEventListener('keydown', keydownListener);
+		return () => document.removeEventListener('keydown', keydownListener);
 	}, [unselectAll]);
+
+	// Detect window size
+	const mediaQuerySelector = window.matchMedia('(max-width: 500px)');
+	mediaQuerySelector.addListener((e: MediaQueryListEvent) =>
+		setSmallScreen(e.matches)
+	);
 
 	return (
 		<div className={theme} id='container'>
@@ -247,9 +260,14 @@ const mapStateToProps = (state: AppState): AppStateProps => ({
 });
 
 const mapDispatchToProps = (
-	dispatch: Dispatch<TasksActionTypes>
+	dispatch: Dispatch<TasksActionTypes | WindowActionTypes>
 ): AppDispatchProps => ({
-	unselectAll: () => dispatch(unselectAll())
+	unselectAll: () => dispatch(unselectAll()),
+	setSmallScreen: (smallScreen: boolean) =>
+		dispatch(setSmallScreen(smallScreen))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+	mapStateToProps,
+	mapDispatchToProps
+)(App);
