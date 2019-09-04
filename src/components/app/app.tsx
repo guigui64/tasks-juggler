@@ -237,7 +237,7 @@ const App: FC<AppProps> = ({
 				isOpen={addTaskDialogOpen}
 				onClose={() => openAddTaskDialog(false)}
 				add={addTask}
-				validateTitle={validateTaskTitle(dataBase, selectedProject)}
+				validateTitle={validateTaskTitle(dataBase)}
 				projects={dataBase.projects}
 				selectedProjectId={selectedProject}
 			/>

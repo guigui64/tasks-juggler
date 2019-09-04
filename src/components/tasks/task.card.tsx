@@ -1,15 +1,22 @@
 import { Card, Elevation } from '@blueprintjs/core';
 import React, { FC } from 'react';
+import { TASK_DURATION_NONE } from '../../utils/constants';
 
 type TaskCardProps = {
 	title: string;
 	desc: string;
-	duration?: number;
+	duration: number;
 	onClick: () => void;
 	selected: boolean;
 };
 
-const TaskCard: FC<TaskCardProps> = ({ title, desc, duration, onClick, selected }) => {
+const TaskCard: FC<TaskCardProps> = ({
+	title,
+	desc,
+	duration,
+	onClick,
+	selected
+}) => {
 	return (
 		<Card
 			interactive={true}
@@ -22,7 +29,9 @@ const TaskCard: FC<TaskCardProps> = ({ title, desc, duration, onClick, selected 
 		>
 			<h3 className='taskcard'>{title}</h3>
 			<p className='taskcard'>{desc}</p>
-			{duration && <p className='taskcard'>{`${duration} day(s)`}</p>}
+			{duration !== TASK_DURATION_NONE && (
+				<p className='taskcard'>{`${duration} day(s)`}</p>
+			)}
 		</Card>
 	);
 };

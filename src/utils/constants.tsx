@@ -16,7 +16,7 @@ export const NO_PROJECT: number = -1;
 export const ALL_PROJECTS: number = -2;
 
 // Tasks
-export const TASK_DURATION_NONE: number = -1;
+export const TASK_DURATION_NONE: number = 0;
 
 // Other
 export const MIN_NAME_SIZE: number = 3;

@@ -169,8 +169,9 @@ export type TaskTitleValidity =
 	| typeof TTV_NOK_OTHER
 	| typeof TTV_OK;
 
-export const validateTaskTitle = (db: DataBase, projectId: number) => (
-	title: string
+export const validateTaskTitle = (db: DataBase) => (
+	title: string,
+	projectId: number
 ): { valid: TaskTitleValidity; reason?: string } => {
 	if (title.length < MIN_NAME_SIZE) {
 		return { valid: TTV_NOK_TOO_SHORT, reason: 'Too short' };
@@ -180,7 +181,9 @@ export const validateTaskTitle = (db: DataBase, projectId: number) => (
 	) {
 		return {
 			valid: TTV_NOK_TITLE_TAKEN,
-			reason: `Task with title ${title} already exists`
+			reason: `Task with title ${title} already exists in project ${
+				db.projects.find(p => p.id === projectId)!.name
+			}`
 		};
 	}
 	return { valid: TTV_OK };

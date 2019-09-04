@@ -4,26 +4,29 @@ import {
 	IDialogProps,
 	InputGroup,
 	NumericInput,
+	Slider,
+	Switch,
 	TextArea
 } from '@blueprintjs/core';
 import React, { FC, useEffect, useState } from 'react';
+import { TASK_DURATION_NONE } from '../../utils/constants';
 import { TaskTitleValidity, TTV_OK } from '../../utils/data/database';
 import { Project } from '../../utils/types/types';
+import Animation from '../animation/animation';
 import AddEditDialog from './add-edit.dialog';
 
 type AddEditTaskDialogprops = {
 	type: 'add' | 'edit';
 	disabled: boolean;
-	action: (projectId: number) => void;
+	action: (projectId: number, duration: number) => void;
 	errorMessage: string;
 	taskTitle: string;
 	desc: string;
-	duration: number;
 	projects: Project[];
-	selectedProjectId: number;
-	onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-	onDescChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-	onDurationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	selectedProject: number;
+	setSelectedProject: (id: number) => void;
+	onTitleChange: (title: string) => void;
+	onDescChange: (desc: string) => void;
 } & IDialogProps;
 
 const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
@@ -33,24 +36,21 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 	errorMessage,
 	taskTitle,
 	desc,
-	duration,
 	projects,
-	selectedProjectId,
+	selectedProject,
+	setSelectedProject,
 	onTitleChange,
 	onDescChange,
-	onDurationChange,
 	...dialogProps
 }) => {
-	const [selectedProject, setSelectedProject] = useState(0);
-	useEffect(() => {
-		setSelectedProject(selectedProjectId >= 0 ? selectedProjectId : 0);
-	}, [selectedProjectId]);
+	const [durationEnabled, setDurationEnabled] = useState(false);
+	const [duration, setDuration] = useState(TASK_DURATION_NONE);
 	return (
 		<AddEditDialog
 			type={type}
 			what='task'
 			disabled={disabled}
-			action={() => action(selectedProject)}
+			action={() => action(selectedProject, duration)}
 			{...dialogProps}
 		>
 			<FormGroup
@@ -62,11 +62,11 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 				<HTMLSelect
 					options={projects.map(p => p.name)}
 					value={projects.find(p => p.id === selectedProject)!.name}
-					onChange={e =>
+					onChange={e => {
 						setSelectedProject(
 							projects.find(p => p.name === e.currentTarget.value)!.id
-						)
-					}
+						);
+					}}
 				/>
 			</FormGroup>
 			<FormGroup
@@ -80,7 +80,9 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 					id='title-input'
 					placeholder='Enter task title here.'
 					value={taskTitle}
-					onChange={onTitleChange}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+						onTitleChange(e.target.value)
+					}
 				/>
 			</FormGroup>
 			<FormGroup
@@ -93,18 +95,50 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 					placeholder='Enter a short description of the task here.'
 					style={{ width: '100%' }}
 					value={desc}
-					onChange={onDescChange}
+					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+						onDescChange(e.target.value)
+					}
 				/>
 			</FormGroup>
-			<FormGroup label='Duration' labelFor='dur-input' labelInfo='(optionnal)'>
-				<NumericInput
-					id='dur-input'
-					placeholder='Enter number (float) of days here.'
-					//style={{ width: '100%' }}
-					value={duration}
-					onChange={onDurationChange}
-				/>
-			</FormGroup>
+			<Switch
+				checked={durationEnabled}
+				label='Set a duration'
+				onChange={() => {
+					setDurationEnabled(!durationEnabled);
+					setDuration(TASK_DURATION_NONE);
+				}}
+			/>
+			<Animation
+				in={durationEnabled}
+				timeout={800}
+				unmountOnExit
+				enteringAnimation='fadeIn fast'
+				exitingAnimation='fadeOut fast'
+			>
+				<FormGroup
+					label='Duration'
+					labelFor='dur-input'
+					labelInfo='in days (optionnal)'
+				>
+					<NumericInput
+						id='dur-input'
+						placeholder='Enter number (float) of days here.'
+						value={duration}
+						min={0}
+						max={15}
+						stepSize={0.5}
+						majorStepSize={1}
+						onValueChange={(v: number) => setDuration(v)}
+					/>
+					<Slider
+						min={0}
+						max={15}
+						stepSize={0.5}
+						value={duration} // ? Why doesn't it change when changing the numeric input ?
+						onChange={(value: number) => setDuration(value)}
+					/>
+				</FormGroup>
+			</Animation>
 		</AddEditDialog>
 	);
 };
@@ -117,7 +151,8 @@ type AddTaskDialogProps = {
 		duration: number | undefined
 	) => void;
 	validateTitle: (
-		title: string
+		title: string,
+		projectId: number
 	) => { valid: TaskTitleValidity; reason?: string };
 	projects: Project[];
 	selectedProjectId: number;
@@ -132,31 +167,39 @@ export const AddTaskDialog: FC<AddTaskDialogProps> = ({
 }) => {
 	const [title, setTitle] = useState('');
 	const [desc, setDesc] = useState('');
-	const [duration, setDuration] = useState(0); // TODO switch to enable + slider ?
 	const [disabled, setDisabled] = useState(true);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [selectedProject, setSelectedProject] = useState(0);
+	useEffect(() => {
+		setSelectedProject(selectedProjectId >= 0 ? selectedProjectId : 0);
+	}, [selectedProjectId]);
 	return (
 		<AddEditTaskDialog
 			type='add'
 			disabled={disabled}
-			action={(projectId: number) => add(title, desc, projectId, duration)}
+			action={(projectId: number, duration: number) =>
+				add(title, desc, projectId, duration)
+			}
 			errorMessage={errorMessage}
 			taskTitle={title}
 			desc={desc}
-			duration={duration}
 			projects={projects}
-			selectedProjectId={selectedProjectId}
-			onTitleChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-				const value = e.target.value;
+			selectedProject={selectedProject}
+			setSelectedProject={(project: number) => {
+				setSelectedProject(project);
+				if (title !== '') {
+					const { valid, reason } = validateTitle(title, project);
+					setDisabled(valid !== TTV_OK);
+					setErrorMessage(reason || '');
+				}
+			}}
+			onTitleChange={(value: string) => {
 				setTitle(value);
-				const { valid, reason } = validateTitle(value);
+				const { valid, reason } = validateTitle(value, selectedProject);
 				setDisabled(valid !== TTV_OK);
 				setErrorMessage(reason || '');
 			}}
-			onDescChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-				setDesc(e.target.value)
-			}
-			onDurationChange={(e: React.ChangeEvent<HTMLInputElement>) => {}}
+			onDescChange={(value: string) => setDesc(value)}
 			{...dialogProps}
 		/>
 	);
