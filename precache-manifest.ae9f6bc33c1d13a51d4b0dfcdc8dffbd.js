@@ -1,27 +1,27 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "598f450e01f38f501ca0e54ae0590bf7",
+    "revision": "cbe203e516477a5344eb8f41db7a0f46",
     "url": "/tasks-juggler/index.html"
   },
   {
-    "revision": "9a8ad0889b05d7ff3d5c",
-    "url": "/tasks-juggler/static/css/2.a8f8e296.chunk.css"
+    "revision": "0eb1a4f954466ca4a22d",
+    "url": "/tasks-juggler/static/css/2.822975e5.chunk.css"
   },
   {
-    "revision": "23fecc2db104f6bbd96c",
+    "revision": "beb42d5474e3f65c935a",
     "url": "/tasks-juggler/static/css/main.94b4631d.chunk.css"
   },
   {
-    "revision": "9a8ad0889b05d7ff3d5c",
-    "url": "/tasks-juggler/static/js/2.87984b6d.chunk.js"
+    "revision": "0eb1a4f954466ca4a22d",
+    "url": "/tasks-juggler/static/js/2.e81c3e1b.chunk.js"
   },
   {
-    "revision": "23fecc2db104f6bbd96c",
-    "url": "/tasks-juggler/static/js/main.f7a19382.chunk.js"
+    "revision": "beb42d5474e3f65c935a",
+    "url": "/tasks-juggler/static/js/main.43397086.chunk.js"
   },
   {
-    "revision": "6fd7454b548dbaed11eb",
-    "url": "/tasks-juggler/static/js/runtime~main.678d2519.js"
+    "revision": "eed3ae745b557d75fd39",
+    "url": "/tasks-juggler/static/js/runtime~main.0675a353.js"
   },
   {
     "revision": "5fa1b8f25b4aa8787f70d5b6b7f0b90f",
