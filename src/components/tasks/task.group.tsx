@@ -27,6 +27,7 @@ type TaskGroupProps = {
 	selectedProject: number;
 	show?: boolean;
 	openAddTaskDialog: (open: boolean) => void;
+	openEditTaskDialog: (open: boolean) => void;
 	openDeleteTaskAlert: (open: boolean) => void;
 } & TaskGroupStateProps &
 	TaskGroupDispatchProps;
@@ -37,6 +38,7 @@ const TaskGroup: FC<TaskGroupProps> = ({
 	selectedProject,
 	show = true,
 	openAddTaskDialog,
+	openEditTaskDialog,
 	openDeleteTaskAlert,
 	showButtonText,
 	selectedIds,
@@ -82,6 +84,23 @@ const TaskGroup: FC<TaskGroupProps> = ({
 						enteringAnimation='fadeInLeft fast'
 						exitingAnimation='fadeOutLeft fast'
 					>
+						<div style={{ display: 'inline-block' }}>
+							<TooltippedButton
+								text={smallScreen ? 'Edit' : 'Edit task'}
+								disabled={
+									filteredTasks.filter(({ id }) => selectedIds.includes(id))
+										.length > 1
+								}
+								position={Position.TOP}
+								showButtonText={showButtonText}
+								buttonProps={{
+									icon: 'edit',
+									onClick: () => {
+										openEditTaskDialog(true);
+									}
+								}}
+							/>
+						</div>
 						<div style={{ display: 'inline-block' }}>
 							<TooltippedButton
 								text={

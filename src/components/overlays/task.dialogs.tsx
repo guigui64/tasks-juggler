@@ -17,58 +17,85 @@ import AddEditDialog from './add-edit.dialog';
 
 type AddEditTaskDialogprops = {
 	type: 'add' | 'edit';
-	disabled: boolean;
-	action: (projectId: number, duration: number) => void;
-	errorMessage: string;
-	taskTitle: string;
-	desc: string;
+	action: (
+		projectId: number,
+		duration: number,
+		title: string,
+		desc: string
+	) => void;
+	taskToEdit?: {
+		title: string;
+		desc: string;
+		duration: number;
+	};
 	projects: Project[];
-	selectedProject: number;
-	setSelectedProject: (id: number) => void;
-	onTitleChange: (title: string) => void;
-	onDescChange: (desc: string) => void;
+	selectedProjectId?: number;
+	validateTitle: (
+		title: string,
+		projectId: number
+	) => { valid: TaskTitleValidity; reason?: string };
 } & IDialogProps;
 
 const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 	type,
-	disabled,
+	taskToEdit,
 	action,
-	errorMessage,
-	taskTitle,
-	desc,
 	projects,
-	selectedProject,
-	setSelectedProject,
-	onTitleChange,
-	onDescChange,
+	selectedProjectId,
+	validateTitle,
 	...dialogProps
 }) => {
-	const [durationEnabled, setDurationEnabled] = useState(false);
+	const [title, setTitle] = useState('');
+	const [desc, setDesc] = useState('');
 	const [duration, setDuration] = useState(TASK_DURATION_NONE);
+	useEffect(() => {
+		if (taskToEdit) {
+			setTitle(taskToEdit.title);
+			setDesc(taskToEdit.desc);
+			setDuration(taskToEdit.duration);
+		}
+	}, [taskToEdit]);
+	const [disabled, setDisabled] = useState(type === 'add');
+	const [errorMessage, setErrorMessage] = useState('');
+	const [selectedProject, setSelectedProject] = useState(0);
+	useEffect(() => {
+		if (selectedProjectId) {
+			setSelectedProject(selectedProjectId >= 0 ? selectedProjectId : 0);
+		}
+	}, [selectedProjectId]);
+	const [durationEnabled, setDurationEnabled] = useState(type === 'edit');
 	return (
 		<AddEditDialog
 			type={type}
 			what='task'
 			disabled={disabled}
-			action={() => action(selectedProject, duration)}
+			action={() => action(selectedProject, duration, title, desc)}
 			{...dialogProps}
 		>
-			<FormGroup
-				label='Task project'
-				labelFor='project-input'
-				labelInfo='(required)'
-				inline
-			>
-				<HTMLSelect
-					options={projects.map(p => p.name)}
-					value={projects.find(p => p.id === selectedProject)!.name}
-					onChange={e => {
-						setSelectedProject(
-							projects.find(p => p.name === e.currentTarget.value)!.id
-						);
-					}}
-				/>
-			</FormGroup>
+			{type !== 'edit' && (
+				<FormGroup
+					label='Task project'
+					labelFor='project-input'
+					labelInfo='(required)'
+					inline
+				>
+					<HTMLSelect
+						options={projects.map(p => p.name)}
+						value={projects.find(p => p.id === selectedProject)!.name}
+						onChange={e => {
+							const project = projects.find(
+								p => p.name === e.currentTarget.value
+							)!.id;
+							setSelectedProject(project);
+							if (title !== '') {
+								const { valid, reason } = validateTitle(title, project);
+								setDisabled(valid !== TTV_OK);
+								setErrorMessage(reason || '');
+							}
+						}}
+					/>
+				</FormGroup>
+			)}
 			<FormGroup
 				helperText={errorMessage}
 				label='Task title'
@@ -79,10 +106,18 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 				<InputGroup
 					id='title-input'
 					placeholder='Enter task title here.'
-					value={taskTitle}
-					onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-						onTitleChange(e.target.value)
-					}
+					value={title}
+					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+						const { value } = e.target;
+						setTitle(value);
+						if (taskToEdit && value === taskToEdit.title) {
+							setDisabled(false);
+						} else {
+							const { valid, reason } = validateTitle(value, selectedProject);
+							setDisabled(valid !== TTV_OK);
+							setErrorMessage(reason || '');
+						}
+					}}
 				/>
 			</FormGroup>
 			<FormGroup
@@ -96,7 +131,7 @@ const AddEditTaskDialog: FC<AddEditTaskDialogprops> = ({
 					style={{ width: '100%' }}
 					value={desc}
 					onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-						onDescChange(e.target.value)
+						setDesc(e.target.value)
 					}
 				/>
 			</FormGroup>
@@ -148,7 +183,7 @@ type AddTaskDialogProps = {
 		title: string,
 		desc: string,
 		projectId: number,
-		duration: number | undefined
+		duration: number
 	) => void;
 	validateTitle: (
 		title: string,
@@ -164,42 +199,57 @@ export const AddTaskDialog: FC<AddTaskDialogProps> = ({
 	projects,
 	selectedProjectId,
 	...dialogProps
+}) => (
+	<AddEditTaskDialog
+		type='add'
+		action={(
+			projectId: number,
+			duration: number,
+			title: string,
+			desc: string
+		) => add(title, desc, projectId, duration)}
+		projects={projects}
+		validateTitle={validateTitle}
+		selectedProjectId={selectedProjectId}
+		{...dialogProps}
+	/>
+);
+
+type EditTaskDialogProps = {
+	taskId: number;
+	taskToEdit: {
+		title: string;
+		desc: string;
+		duration: number;
+	};
+	edit: (taskId: number, title: string, desc: string, duration: number) => void;
+	validateTitle: (
+		title: string,
+		projectId: number
+	) => { valid: TaskTitleValidity; reason?: string };
+	projects: Project[];
+} & IDialogProps;
+
+export const EditTaskDialog: FC<EditTaskDialogProps> = ({
+	taskId,
+	taskToEdit,
+	edit,
+	validateTitle,
+	projects,
+	...dialogProps
 }) => {
-	const [title, setTitle] = useState('');
-	const [desc, setDesc] = useState('');
-	const [disabled, setDisabled] = useState(true);
-	const [errorMessage, setErrorMessage] = useState('');
-	const [selectedProject, setSelectedProject] = useState(0);
-	useEffect(() => {
-		setSelectedProject(selectedProjectId >= 0 ? selectedProjectId : 0);
-	}, [selectedProjectId]);
 	return (
 		<AddEditTaskDialog
-			type='add'
-			disabled={disabled}
-			action={(projectId: number, duration: number) =>
-				add(title, desc, projectId, duration)
-			}
-			errorMessage={errorMessage}
-			taskTitle={title}
-			desc={desc}
+			type='edit'
+			action={(
+				projectId: number,
+				duration: number,
+				title: string,
+				desc: string
+			) => edit(taskId, title, desc, duration)}
 			projects={projects}
-			selectedProject={selectedProject}
-			setSelectedProject={(project: number) => {
-				setSelectedProject(project);
-				if (title !== '') {
-					const { valid, reason } = validateTitle(title, project);
-					setDisabled(valid !== TTV_OK);
-					setErrorMessage(reason || '');
-				}
-			}}
-			onTitleChange={(value: string) => {
-				setTitle(value);
-				const { valid, reason } = validateTitle(value, selectedProject);
-				setDisabled(valid !== TTV_OK);
-				setErrorMessage(reason || '');
-			}}
-			onDescChange={(value: string) => setDesc(value)}
+			validateTitle={validateTitle}
+			taskToEdit={taskToEdit}
 			{...dialogProps}
 		/>
 	);

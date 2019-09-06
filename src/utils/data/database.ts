@@ -1,5 +1,5 @@
 import { MIN_NAME_SIZE, NO_PROJECT } from '../constants';
-import { DataBase, Project } from '../types/types';
+import { DataBase, Project, Task } from '../types/types';
 
 export const createFakeDataBase: () => DataBase = () => {
 	let initialProjectId = 0;
@@ -193,4 +193,8 @@ export const getProject = (db: DataBase) => (
 	id: number
 ): Project | undefined => {
 	return db.projects.find(p => p.id === id);
+};
+
+export const getTask = (db: DataBase) => (id: number): Task | undefined => {
+	return db.tasks.find(t => t.id === id);
 };

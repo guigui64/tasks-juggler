@@ -11,14 +11,14 @@ import { WindowActionTypes } from '../../store/window/types';
 import {
 	ALL_PROJECTS,
 	DATABASE_STORAGE_KEY,
-	NO_PROJECT,
-	TASK_DURATION_NONE
+	NO_PROJECT
 } from '../../utils/constants';
 import {
 	createFakeDataBase,
 	getNextProjectId,
 	getNextTaskId,
 	getProject,
+	getTask,
 	validateDB,
 	validateProjectName,
 	validateTaskTitle
@@ -34,7 +34,7 @@ import {
 	AddProjectDialog,
 	EditProjectDialog
 } from '../overlays/project.dialogs';
-import { AddTaskDialog } from '../overlays/task.dialogs';
+import { AddTaskDialog, EditTaskDialog } from '../overlays/task.dialogs';
 import TaskGroup from '../tasks/task.group';
 import './app.css';
 
@@ -66,9 +66,9 @@ const App: FC<AppProps> = ({
 	const [deleteProjAlertOpen, openDeleteProjAlert] = useState(false);
 	const [addProjDialogOpen, openAddProjDialog] = useState(false);
 	const [editProjDialogOpen, openEditProjDialog] = useState(false);
-	// TODO edit task dialog
 	const [deleteTaskAlertOpen, openDeleteTaskAlert] = useState(false);
 	const [addTaskDialogOpen, openAddTaskDialog] = useState(false);
+	const [editTaskDialogOpen, openEditTaskDialog] = useState(false);
 	const [dumpDBDialogOpen, openDumpDBDialog] = useState(false);
 	const [loadDBDialogOpen, openLoadDBDialog] = useState(false);
 
@@ -86,6 +86,21 @@ const App: FC<AppProps> = ({
 		localStorage.setItem(DATABASE_STORAGE_KEY, JSON.stringify(db));
 	};
 	const [selectedProject, setSelectedProject] = useState(ALL_PROJECTS);
+	const [taskToEdit, setTaskToEdit] = useState({
+		title: 'NO_TITLE',
+		desc: 'NO_DESC',
+		duration: -1
+	});
+	useEffect(() => {
+		const task = getTask(dataBase)(selectedTasks[0]);
+		if (task) {
+			setTaskToEdit({
+				title: task.title,
+				desc: task.desc,
+				duration: task.duration
+			});
+		}
+	}, [dataBase, selectedTasks]);
 
 	// Methods on database
 	const addProject = (name: string, desc: string) => {
@@ -121,19 +136,29 @@ const App: FC<AppProps> = ({
 		title: string,
 		desc: string,
 		projectId: number,
-		duration: number | undefined
+		duration: number
 	) => {
 		dataBase.tasks.push({
 			id: getNextTaskId(dataBase),
-			duration: duration || TASK_DURATION_NONE,
 			...{
 				title,
 				projectId,
-				desc
+				desc,
+				duration
 			}
 		});
 		updateDataBase(dataBase);
 		setSelectedProject(projectId);
+	};
+	const editTask = (
+		taskId: number,
+		title: string,
+		desc: string,
+		duration: number
+	) => {
+		let task = getTask(dataBase)(taskId)!;
+		[task.title, task.desc, task.duration] = [title, desc, duration];
+		updateDataBase(dataBase);
 	};
 	const deleteTask = (taskId: number) => {
 		dataBase.tasks = dataBase.tasks.filter(t => t.id !== taskId);
@@ -185,6 +210,7 @@ const App: FC<AppProps> = ({
 					tasks={dataBase.tasks}
 					selectedProject={selectedProject}
 					openAddTaskDialog={openAddTaskDialog}
+					openEditTaskDialog={openEditTaskDialog}
 					openDeleteTaskAlert={openDeleteTaskAlert}
 				/>
 				<TaskGroup
@@ -193,6 +219,7 @@ const App: FC<AppProps> = ({
 					selectedProject={NO_PROJECT}
 					show={showOrphan}
 					openAddTaskDialog={openAddTaskDialog}
+					openEditTaskDialog={openEditTaskDialog}
 					openDeleteTaskAlert={openDeleteTaskAlert}
 				/>
 				<div style={{ padding: '50px 50px 0 50px' }}>
@@ -243,15 +270,36 @@ const App: FC<AppProps> = ({
 				projects={dataBase.projects}
 				selectedProjectId={selectedProject}
 			/>
+			<EditTaskDialog
+				isOpen={editTaskDialogOpen}
+				onClose={() => openEditTaskDialog(false)}
+				taskId={selectedTasks[0]}
+				edit={editTask}
+				validateTitle={validateTaskTitle(dataBase)}
+				projects={dataBase.projects}
+				taskToEdit={taskToEdit}
+			/>
 			<DeleteAlert
-				confirmButtonText='Delete task'
+				confirmButtonText={
+					'Delete task' + (selectedTasks.length > 1 ? 's' : '')
+				}
 				isOpen={deleteTaskAlertOpen}
 				onCancel={() => openDeleteTaskAlert(false)}
 				onConfirm={() => {
 					openDeleteTaskAlert(false);
 					selectedTasks.forEach(i => deleteTask(i));
 				}}
-				deletionTargetName={'TODO selected task(s)'}
+				deletionTargetName={
+					selectedTasks
+						? selectedTasks.length > 1
+							? selectedTasks
+									.map(id => dataBase.tasks.find(t => t.id === id)!.title)
+									.join(', ')
+							: dataBase.tasks.find(t => t.id === selectedTasks[0])
+							? dataBase.tasks.find(t => t.id === selectedTasks[0])!.title
+							: ''
+						: ''
+				}
 			/>
 			<DumpDataBaseDialog
 				isOpen={dumpDBDialogOpen}
