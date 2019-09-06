@@ -179,26 +179,28 @@ const App: FC<AppProps> = ({
 					openDeleteTaskAlert
 				}}
 			/>
-			<TaskGroup
-				title='Tasks'
-				tasks={dataBase.tasks}
-				selectedProject={selectedProject}
-				openAddTaskDialog={openAddTaskDialog}
-				openDeleteTaskAlert={openDeleteTaskAlert}
-			/>
-			<TaskGroup
-				title='Orphan tasks'
-				tasks={dataBase.tasks}
-				selectedProject={NO_PROJECT}
-				show={showOrphan}
-				openAddTaskDialog={openAddTaskDialog}
-				openDeleteTaskAlert={openDeleteTaskAlert}
-			/>
-			<div style={{ padding: '50px 50px 0 50px' }}>
-				<div style={{ display: 'inline' }}>
-					<H3 style={{ display: 'inline-block', marginRight: '10px' }}>
-						Planning
-					</H3>
+			<div id='content'>
+				<TaskGroup
+					title='Tasks'
+					tasks={dataBase.tasks}
+					selectedProject={selectedProject}
+					openAddTaskDialog={openAddTaskDialog}
+					openDeleteTaskAlert={openDeleteTaskAlert}
+				/>
+				<TaskGroup
+					title='Orphan tasks'
+					tasks={dataBase.tasks}
+					selectedProject={NO_PROJECT}
+					show={showOrphan}
+					openAddTaskDialog={openAddTaskDialog}
+					openDeleteTaskAlert={openDeleteTaskAlert}
+				/>
+				<div style={{ padding: '50px 50px 0 50px' }}>
+					<div style={{ display: 'inline' }}>
+						<H3 style={{ display: 'inline-block', marginRight: '10px' }}>
+							Planning
+						</H3>
+					</div>
 				</div>
 			</div>
 			<div id='footer'>

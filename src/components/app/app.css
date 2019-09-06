@@ -9,6 +9,10 @@
 	background-color: #293742;
 }
 
+#content {
+	margin-bottom: 30px; /* for footer */
+}
+
 #footer {
 	position: absolute;
 	bottom: 0;
