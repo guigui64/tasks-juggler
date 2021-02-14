@@ -4,21 +4,21 @@
   "private": true,
   "homepage": "http://guigui64.github.io/tasks-juggler",
   "dependencies": {
-    "@blueprintjs/core": "^3.18.0",
-    "@blueprintjs/datetime": "^3.9.2",
-    "@blueprintjs/icons": "^3.10.0",
+    "@blueprintjs/core": "^3.38.2",
+    "@blueprintjs/datetime": "^3.20.4",
+    "@blueprintjs/icons": "^3.24.0",
     "animate.css": "^3.7.2",
-    "file-saver": "^2.0.2",
-    "gh-pages": "^2.1.1",
+    "file-saver": "^2.0.5",
+    "gh-pages": "^2.2.0",
     "normalize": "^0.3.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
-    "react-redux": "^7.1.1",
-    "react-scripts": "^3.1.1",
-    "react-transition-group": "^4.2.2",
-    "redux": "^4.0.4",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-redux": "^7.2.2",
+    "react-scripts": "^3.4.4",
+    "react-transition-group": "^4.4.1",
+    "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
-    "typescript": "^3.5.3"
+    "typescript": "^3.9.9"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -42,9 +42,9 @@
     "@types/node": "11.13.0",
     "@types/react": "16.8.12",
     "@types/react-dom": "16.8.3",
-    "@types/react-redux": "^7.1.2",
-    "@types/react-transition-group": "^4.2.2",
-    "@types/redux-logger": "^3.0.7",
+    "@types/react-redux": "^7.1.16",
+    "@types/react-transition-group": "^4.4.0",
+    "@types/redux-logger": "^3.0.8",
     "redux-devtools-extension": "^2.13.8"
   }
 }
